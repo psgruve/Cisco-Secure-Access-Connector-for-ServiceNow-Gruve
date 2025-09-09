@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_security_acl_role">
+    <sys_security_acl_role action="INSERT_OR_UPDATE">
+        <sys_class_name>sys_security_acl_role</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-08 11:40:17</sys_created_on>
+        <sys_id>cd309e66c373a210cb33514ed4013171</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>u_destination_list.u_destination_list_user</sys_name>
+        <sys_package display_value="Global" source="global">global</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</sys_scope>
+        <sys_security_acl display_value="u_destination_list">89309e66c373a210cb33514ed401316e</sys_security_acl>
+        <sys_update_name>sys_security_acl_role_cd309e66c373a210cb33514ed4013171</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:42:10</sys_updated_on>
+        <sys_user_role display_value="u_destination_list_user" name="u_destination_list_user">28309aaec333a210cb33514ed4013199</sys_user_role>
+    </sys_security_acl_role>
+    <sys_claim action="INSERT_OR_UPDATE">
+        <claim_owner_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</claim_owner_scope>
+        <claim_timestamp>1992eb668440000001</claim_timestamp>
+        <metadata_update_name>sys_security_acl_role_cd309e66c373a210cb33514ed4013171</metadata_update_name>
+        <previous_claim_app_version>0.0.0-CONVERTED</previous_claim_app_version>
+        <previous_claim_name>Cisco Secure Access Connector for ServiceNow Gruve</previous_claim_name>
+        <previous_claim_scope>e1352772c3bf2610cb33514ed4013156</previous_claim_scope>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 13:42:10</sys_created_on>
+        <sys_id>c0b5373ac3336610cb33514ed40131ed</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:42:10</sys_updated_on>
+    </sys_claim>
+</record_update>
