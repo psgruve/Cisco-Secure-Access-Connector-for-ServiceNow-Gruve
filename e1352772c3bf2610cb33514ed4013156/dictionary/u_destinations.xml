@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="b7515ae6c373a210cb33514ed40131a9" label="Destinations" max_length="40" name="u_destinations" type="collection">
+        <element label="Destination" max_length="255" name="u_destination" type="string"/>
+        <element label="Destination id" max_length="100" name="u_destination_id" type="integer"/>
+        <element label="Ticket id" max_length="255" name="u_ticket_id" type="string"/>
+        <element label="Comment" max_length="4000" name="u_comment" type="string"/>
+        <element label="Destination list id" max_length="32" name="u_destination_list_id" reference="u_destination_list" type="reference"/>
+        <element choice="1" label="Type" max_length="40" name="u_type" type="choice">
+            <choice/>
+        </element>
+        <index name="index">
+            <element name="u_destination_list_id"/>
+        </index>
+    </element>
+</database>

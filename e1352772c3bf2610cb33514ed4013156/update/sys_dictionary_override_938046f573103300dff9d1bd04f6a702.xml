@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_dictionary_override">
+    <sys_dictionary_override action="INSERT_OR_UPDATE">
+        <attributes/>
+        <attributes_override>false</attributes_override>
+        <base_table>task</base_table>
+        <calculation/>
+        <calculation_override>false</calculation_override>
+        <default_value/>
+        <default_value_override>false</default_value_override>
+        <dependent/>
+        <dependent_override>false</dependent_override>
+        <display_override>false</display_override>
+        <element>assigned_to</element>
+        <mandatory>false</mandatory>
+        <mandatory_override>false</mandatory_override>
+        <name>change_request</name>
+        <read_only>false</read_only>
+        <read_only_override>false</read_only_override>
+        <reference_qual>roles=itil^ORroles=sn_change_write</reference_qual>
+        <reference_qual_override>true</reference_qual_override>
+        <sys_class_name>sys_dictionary_override</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-03-20 20:54:11</sys_created_on>
+        <sys_id>938046f573103300dff9d1bd04f6a702</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>assigned_to</sys_name>
+        <sys_package display_value="ITSM Roles - Change Management (do not activate, see plugin description)" source="com.snc.itsm.roles.change_management">b6a7bfea88162210559020d480f9d210</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</sys_scope>
+        <sys_update_name>sys_dictionary_override_938046f573103300dff9d1bd04f6a702</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:20:39</sys_updated_on>
+    </sys_dictionary_override>
+    <sys_claim action="INSERT_OR_UPDATE">
+        <claim_owner_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</claim_owner_scope>
+        <claim_timestamp>1992ea2b7630000002</claim_timestamp>
+        <metadata_update_name>sys_dictionary_override_938046f573103300dff9d1bd04f6a702</metadata_update_name>
+        <previous_claim_app_version>0.0.0-CONVERTED</previous_claim_app_version>
+        <previous_claim_name>Cisco Secure Access Connector for ServiceNow Gruve</previous_claim_name>
+        <previous_claim_scope>e1352772c3bf2610cb33514ed4013156</previous_claim_scope>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 13:20:39</sys_created_on>
+        <sys_id>4dc0b37ec3ff2610cb33514ed40131ce</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:20:39</sys_updated_on>
+    </sys_claim>
+    <sys_claim action="INSERT_OR_UPDATE">
+        <claim_owner_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</claim_owner_scope>
+        <claim_timestamp>1992ea2b7630000001</claim_timestamp>
+        <metadata_update_name>sys_dictionary_override_938046f573103300dff9d1bd04f6a702</metadata_update_name>
+        <previous_claim_app_version/>
+        <previous_claim_name>com.snc.itsm.roles.change_management</previous_claim_name>
+        <previous_claim_scope>com.snc.itsm.roles.change_manage</previous_claim_scope>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 13:20:39</sys_created_on>
+        <sys_id>01c0b37ec3ff2610cb33514ed40131cf</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:20:39</sys_updated_on>
+    </sys_claim>
+</record_update>

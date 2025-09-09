@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="email_client=true,hasWorkflow=true,live_feed=true" audit="true" db_object_id="6cf17f6e88922210559020d480f9d25b" extends="task" label="Change Request" max_length="40" name="change_request" text_index="true" type="collection">
+        <element label="Destination List" max_length="32" name="u_destination_list" reference="u_destination_list" type="reference"/>
+        <element label="Destination Address" max_length="4000" name="u_destination_address" type="string"/>
+        <element attributes="edge_encryption_enabled=true" choice="1" default="Other" label="Category" max_length="40" name="category" type="string">
+            <choice>
+                <element inactive_on_update="false" label="Cisco Secure Access Configuration" value="CSA Configuration"/>
+                <element inactive_on_update="false" label="Service" sequence="2" value="Service"/>
+                <element inactive_on_update="false" label="Telecom" sequence="6" value="Telecom"/>
+                <element inactive_on_update="false" label="System Software" sequence="3" value="System Software"/>
+                <element inactive_on_update="false" label="Documentation" sequence="7" value="Documentation"/>
+                <element inactive_on_update="false" label="Hardware" sequence="0" value="Hardware"/>
+                <element inactive_on_update="false" label="Applications Software" sequence="4" value="Applications Software"/>
+                <element inactive_on_update="false" label="Other" sequence="8" value="Other"/>
+                <element inactive="true" inactive_on_update="true" label="ServiceNow Deployment" sequence="0" value="Service-now Deployment"/>
+                <element inactive_on_update="false" label="Network" sequence="5" value="Network"/>
+                <element inactive_on_update="false" label="Software" sequence="1" value="Software"/>
+            </choice>
+        </element>
+    </element>
+</database>

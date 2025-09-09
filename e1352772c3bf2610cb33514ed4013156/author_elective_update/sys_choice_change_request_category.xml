@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_choice action="INSERT_OR_UPDATE" field="category" table="change_request" version="3">
+        <sys_choice_set action="INSERT_OR_UPDATE">
+            <element>category</element>
+            <name>change_request</name>
+            <sys_class_name>sys_choice_set</sys_class_name>
+            <sys_created_by>system</sys_created_by>
+            <sys_created_on>2025-06-26 05:13:10</sys_created_on>
+            <sys_mod_count>1</sys_mod_count>
+            <sys_name>category</sys_name>
+            <sys_package display_value="Change Request" source="com.snc.change_request">50f17f6e88922210559020d480f9d226</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</sys_scope>
+            <sys_update_name>sys_choice_change_request_category</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-09-09 13:23:10</sys_updated_on>
+        </sys_choice_set>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>category</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Cisco Secure Access Configuration</label>
+            <language>en</language>
+            <name>change_request</name>
+            <sequence/>
+            <synonyms/>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-09-03 13:16:17</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_mod_count>1</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-09-09 05:10:28</sys_updated_on>
+            <value>CSA Configuration</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>category</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Hardware</label>
+            <language>en</language>
+            <name>change_request</name>
+            <sequence>0</sequence>
+            <synonyms/>
+            <sys_created_by>system</sys_created_by>
+            <sys_created_on>2025-06-26 05:13:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path/>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>system</sys_updated_by>
+            <sys_updated_on>2025-06-26 05:13:10</sys_updated_on>
+            <value>Hardware</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>category</element>
+            <hint/>
+            <inactive>true</inactive>
+            <label>ServiceNow Deployment</label>
+            <language>en</language>
+            <name>change_request</name>
+            <sequence>0</sequence>
+            <synonyms/>
+            <sys_created_by>system</sys_created_by>
+            <sys_created_on>2025-06-26 05:13:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path/>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>system</sys_updated_by>
+            <sys_updated_on>2025-06-26 05:13:10</sys_updated_on>
+            <value>Service-now Deployment</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>category</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Software</label>
+            <language>en</language>
+            <name>change_request</name>
+            <sequence>1</sequence>
+            <synonyms/>
+            <sys_created_by>system</sys_created_by>
+            <sys_created_on>2025-06-26 05:13:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path/>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>system</sys_updated_by>
+            <sys_updated_on>2025-06-26 05:13:10</sys_updated_on>
+            <value>Software</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>category</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Service</label>
+            <language>en</language>
+            <name>change_request</name>
+            <sequence>2</sequence>
+            <synonyms/>
+            <sys_created_by>system</sys_created_by>
+            <sys_created_on>2025-06-26 05:13:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path/>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>system</sys_updated_by>
+            <sys_updated_on>2025-06-26 05:13:10</sys_updated_on>
+            <value>Service</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>category</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>System Software</label>
+            <language>en</language>
+            <name>change_request</name>
+            <sequence>3</sequence>
+            <synonyms/>
+            <sys_created_by>system</sys_created_by>
+            <sys_created_on>2025-06-26 05:13:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path/>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>system</sys_updated_by>
+            <sys_updated_on>2025-06-26 05:13:10</sys_updated_on>
+            <value>System Software</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>category</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Applications Software</label>
+            <language>en</language>
+            <name>change_request</name>
+            <sequence>4</sequence>
+            <synonyms/>
+            <sys_created_by>system</sys_created_by>
+            <sys_created_on>2025-06-26 05:13:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path/>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>system</sys_updated_by>
+            <sys_updated_on>2025-06-26 05:13:10</sys_updated_on>
+            <value>Applications Software</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>category</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Network</label>
+            <language>en</language>
+            <name>change_request</name>
+            <sequence>5</sequence>
+            <synonyms/>
+            <sys_created_by>system</sys_created_by>
+            <sys_created_on>2025-06-26 05:13:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path/>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>system</sys_updated_by>
+            <sys_updated_on>2025-06-26 05:13:10</sys_updated_on>
+            <value>Network</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>category</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Telecom</label>
+            <language>en</language>
+            <name>change_request</name>
+            <sequence>6</sequence>
+            <synonyms/>
+            <sys_created_by>system</sys_created_by>
+            <sys_created_on>2025-06-26 05:13:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path/>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>system</sys_updated_by>
+            <sys_updated_on>2025-06-26 05:13:10</sys_updated_on>
+            <value>Telecom</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>category</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Documentation</label>
+            <language>en</language>
+            <name>change_request</name>
+            <sequence>7</sequence>
+            <synonyms/>
+            <sys_created_by>system</sys_created_by>
+            <sys_created_on>2025-06-26 05:13:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path/>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>system</sys_updated_by>
+            <sys_updated_on>2025-06-26 05:13:10</sys_updated_on>
+            <value>Documentation</value>
+        </sys_choice>
+        <sys_choice action="INSERT_OR_UPDATE">
+            <dependent_value/>
+            <element>category</element>
+            <hint/>
+            <inactive>false</inactive>
+            <label>Other</label>
+            <language>en</language>
+            <name>change_request</name>
+            <sequence>8</sequence>
+            <synonyms/>
+            <sys_created_by>system</sys_created_by>
+            <sys_created_on>2025-06-26 05:13:10</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path/>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>system</sys_updated_by>
+            <sys_updated_on>2025-06-26 05:13:10</sys_updated_on>
+            <value>Other</value>
+        </sys_choice>
+    </sys_choice>
+    <sys_claim action="INSERT_OR_UPDATE">
+        <claim_owner_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</claim_owner_scope>
+        <claim_timestamp>1992ea504ca0000001</claim_timestamp>
+        <metadata_update_name>sys_choice_change_request_category</metadata_update_name>
+        <previous_claim_app_version>0.0.0-CONVERTED</previous_claim_app_version>
+        <previous_claim_name>Cisco Secure Access Connector for ServiceNow Gruve</previous_claim_name>
+        <previous_claim_scope>e1352772c3bf2610cb33514ed4013156</previous_claim_scope>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 13:23:10</sys_created_on>
+        <sys_id>79513bbec3ff2610cb33514ed40131fd</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:23:10</sys_updated_on>
+    </sys_claim>
+    <sys_claim action="INSERT_OR_UPDATE">
+        <claim_owner_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</claim_owner_scope>
+        <claim_timestamp>1992ea504c90000001</claim_timestamp>
+        <metadata_update_name>sys_choice_change_request_category</metadata_update_name>
+        <previous_claim_app_version/>
+        <previous_claim_name>com.snc.change_request</previous_claim_name>
+        <previous_claim_scope>com.snc.change_request</previous_claim_scope>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 13:23:10</sys_created_on>
+        <sys_id>3d513bbec3ff2610cb33514ed40131fd</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:23:10</sys_updated_on>
+    </sys_claim>
+</record_update>

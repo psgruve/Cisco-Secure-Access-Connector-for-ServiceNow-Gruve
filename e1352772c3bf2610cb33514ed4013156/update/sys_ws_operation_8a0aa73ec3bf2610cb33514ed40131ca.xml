@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json,application/xml,text/xml</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri/>
+        <enforce_acl>cf9d01d3e73003009d6247e603f6a990</enforce_acl>
+        <http_method>POST</http_method>
+        <name>Create Event</name>
+        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+	try {
+		var user = gs.getUser(); 
+        var userName = user.getName();
+        var userId = user.getID();
+
+        if (!user || user.getID() === "guest") {
+            response.setStatus(401); // Unauthorized
+            return { status: "error", message: "User not authenticated" };
+        }
+		if (!user.hasRole("evt_mgmt_integration")) {
+            response.setStatus(403); // Forbidden
+            return { status: "error", message: "User not authorized to send events" };
+        }
+		var body = request.body.data;
+		if (!body || !body.event) {
+			response.setStatus(400);
+			return { status: "error", message: "No event found in payload" };
+		}
+
+		var event = body.event;
+
+		//Map severity text to numeric Choice value
+		var severityMap = { 
+			"Critical": 1, 
+			"Major": 2, 
+			"Minor": 3,
+			"Warning": 4, 
+			"OK": 5 
+			}; 
+		var severityValue = severityMap[event.severity];
+		// Use provided alertId as message_key
+		var messageKey = body.alertId || "default_alertId";
+
+		// Check if an event already exists with same message_key
+		var existing = new GlideRecord("em_event");
+		existing.addQuery("message_key", messageKey);
+		existing.query();
+		if (existing.next()) {
+			messageKey = existing.message_key.toString();
+		}
+		var additionalInfo = "";
+        if (event.userAgents && Array.isArray(event.userAgents)) {
+            additionalInfo = event.userAgents.join(", ");
+        }
+		// Insert new event
+		var gr = new GlideRecord("em_event");
+		gr.initialize();
+		gr.source = "Cisco Secure Access";
+		gr.u_rule_name = event.ruleName || "";
+        gr.u_api_key_id = event.apiKeyId || "";
+        gr.description = event.ruleExpression || "";
+		gr.additional_info = additionalInfo || "";
+		// gr.node = "API Security";
+		// gr.type = "API Security";
+		// gr.category = "API Threat";
+		// gr.event_class = "api.anomaly";
+		gr.severity = severityValue;        // Numeric value
+		gr.message_key = messageKey;
+		
+
+		var sysId = gr.insert();
+
+		response.setStatus(201);
+		return { status: "success", sys_id: sysId, message_key: messageKey, severityValue: severityValue };
+
+	} catch (ex) {
+		gs.error("Error creating event: " + ex.message);
+		response.setStatus(500);
+		return { status: "error", message: ex.message };
+	}
+
+	
+})(request, response);
+]]></operation_script>
+        <operation_uri>/api/1803242/cisco_secure_access_event_management/event</operation_uri>
+        <produces>application/json,application/xml,text/xml</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/event</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>true</requires_snc_internal_role>
+        <short_description/>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 13:11:31</sys_created_on>
+        <sys_id>8a0aa73ec3bf2610cb33514ed40131ca</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Create Event</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e1352772c3bf2610cb33514ed4013156">e1352772c3bf2610cb33514ed4013156</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</sys_scope>
+        <sys_update_name>sys_ws_operation_8a0aa73ec3bf2610cb33514ed40131ca</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:11:31</sys_updated_on>
+        <web_service_definition display_value="Cisco Secure Access  Event Management">a349a3bac3bf2610cb33514ed40131c9</web_service_definition>
+        <web_service_version/>
+    </sys_ws_operation>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>8a0aa73ec3bf2610cb33514ed40131ca</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 13:11:30</sys_created_on>
+        <sys_id>07ae63f6c3ff2610cb33514ed4013125</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:11:30</sys_updated_on>
+        <table>sys_ws_operation</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

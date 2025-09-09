@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>global.CiscoCSATokenManager</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description>Helper class to fetch and refresh  Cisco Secure Access OAuth tokens</description>
+        <mobile_callable>false</mobile_callable>
+        <name>CiscoCSATokenManager</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var CiscoCSATokenManager = Class.create();
+CiscoCSATokenManager.prototype = {
+  initialize: function() {},
+
+  fetchAndStoreToken: function() {
+    var rm = new sn_ws.RESTMessageV2('Cisco Secure Access Token Generation', 'Get Access Token');
+    var response = rm.execute();
+    var status = response.getStatusCode();
+    var body = response.getBody();
+
+    if (status != 200) {
+      gs.error('Token request failed. Status: ' + status + ' Body: ' + body);
+      return null;
+    }
+
+    var parsed = JSON.parse(body);
+    var token = parsed.access_token;
+    var expires = parsed.expires_in; 
+
+    if (!token) {
+      gs.error('No access_token found in response');
+      return null;
+    }
+
+    var expiry = new GlideDateTime();
+    expiry.addSeconds(expires);
+
+    // Wipe old records
+    var grDel = new GlideRecord('x_1051972_cisco_cs_cisco_csa_token');
+    grDel.query();
+    while (grDel.next()) {
+      grDel.deleteRecord();
+    }
+
+    // Insert new record
+    var gr = new GlideRecord('x_1051972_cisco_cs_cisco_csa_token');
+    gr.initialize();
+    gr.access_token = token;
+    gr.expiry_date_time = expiry;
+    gr.expires_in = expires;
+    gr.token_type = parsed.token_type || "Bearer";
+    gr.status = "Active";
+	gr.created_on = new GlideDateTime();
+    gr.insert();
+
+    gs.info('Cisco token stored. Expires at ' + expiry);
+    return token;
+  },
+
+  getToken: function() {
+    var gr = new GlideRecord('x_1051972_cisco_cs_cisco_csa_token');
+    if (gr.getFirstRow()) {
+      var now = new GlideDateTime();
+      if (now.after(gr.expiry_date_time)) {
+        // Expired: update record before fetching new
+        gr.status = "Expired";
+        gr.update();
+
+        gs.info('Token expired, fetching new one...');
+        return this.fetchAndStoreToken();
+      }
+      return gr.access_token.toString();
+    } else {
+      gs.info('No token record found, fetching new one...');
+      return this.fetchAndStoreToken();
+    }
+  },
+
+  type: 'CiscoCSATokenManager'
+};
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 13:10:28</sys_created_on>
+        <sys_id>8b4da336c3ff2610cb33514ed40131a5</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>CiscoCSATokenManager</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e1352772c3bf2610cb33514ed4013156">e1352772c3bf2610cb33514ed4013156</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</sys_scope>
+        <sys_update_name>sys_script_include_8b4da336c3ff2610cb33514ed40131a5</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:10:28</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>8b4da336c3ff2610cb33514ed40131a5</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 13:10:27</sys_created_on>
+        <sys_id>ab6eabb6c3ff2610cb33514ed40131bd</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:10:27</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>
