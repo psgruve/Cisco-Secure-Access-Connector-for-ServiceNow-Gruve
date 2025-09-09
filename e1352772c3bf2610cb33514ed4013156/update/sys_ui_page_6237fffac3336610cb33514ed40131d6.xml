@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_page">
+    <sys_ui_page action="INSERT_OR_UPDATE">
+        <category>general</category>
+        <client_script/>
+        <description/>
+        <direct>false</direct>
+        <endpoint/>
+        <html><![CDATA[<jelly>
+    <html>
+    <head>
+        <style>
+            body {
+                background: #f4f5f7;
+                font-family: 'Segoe UI', Tahoma, sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+ 
+            .form-container {
+                max-width: 700px;
+                margin: 60px auto;
+                padding: 40px;
+                background: #fff;
+                border: 1px solid #d1d1d1;
+                border-radius: 12px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            }
+ 
+            .form-container h2 {
+                text-align: center;
+                margin-bottom: 30px;
+                font-size: 28px;
+                font-weight: 700;
+                color: #0072c6;
+            }
+ 
+            .instructions {
+                background: #f9fafb;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 25px;
+                margin-bottom: 35px;
+            }
+ 
+            .instructions h3 {
+                font-size: 20px;
+                margin-bottom: 15px;
+                color: #333;
+            }
+ 
+            .instructions ol {
+                padding-left: 20px;
+                margin: 0;
+            }
+ 
+            .instructions li {
+                margin-bottom: 12px;
+                line-height: 1.7;
+                font-size: 15px;
+                color: #444;
+            }
+ 
+            .instructions strong {
+                color: #293e40;
+            }
+ 
+            .form-group {
+                margin-bottom: 20px;
+            }
+ 
+            .form-group label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: #333;
+            }
+ 
+            .form-control {
+                width: 100%;
+                padding: 12px 15px;
+                border: 1px solid #c0c0c0;
+                border-radius: 6px;
+                font-size: 15px;
+            }
+ 
+            .form-control:focus {
+                border-color: #0072c6;
+                outline: none;
+                box-shadow: 0 0 8px rgba(0, 114, 198, 0.3);
+            }
+ 
+            .btn-primary {
+                background-color: #005fa3 !important;
+                border: none !important;
+                padding: 10px !important;
+                color: white !important;
+                font-weight: 600;
+                border-radius: 6px;
+                cursor: pointer;
+                width: 100%;
+                font-size: 16px;
+                transition: background-color 0.3s ease-in-out;
+            }
+ 
+            .btn-primary:hover {
+                background-color: #1a75bb !important;
+            }
+ 
+            .btn-primary:active,
+            .btn-primary:focus {
+                background-color: #004b82 !important;
+                outline: none;
+                box-shadow: none;
+            }
+ 
+            #resultMsg {
+                margin-top: 25px;
+                font-weight: bold;
+                text-align: center;
+            }
+ 
+            .success {
+                color: green;
+            }
+ 
+            .error {
+                color: red;
+            }
+        </style>
+    </head>
+ 
+    <body>
+        <div class="form-container">
+            <h2>Register CSA Event Alerts</h2>
+            <div class="instructions">
+                <h3>Instructions</h3>
+                <ol>
+                    <li>Ask your administrator to create a dedicated ServiceNow user account for receiving CSA alerts.
+                    </li>
+                    <li>Note the ServiceNow Username and Password for the new account. Enter carefully; incorrect
+                        credentials cannot be verified.</li>
+                    <li>Fill in your credentials below and click Submit to register for CSA Event Alerts. A confirmation
+                        message will appear upon success.</li>
+                </ol>
+            </div>
+            <form onsubmit="submitForm(); return false;">
+                <div class="form-group"> <label for="username">Username</label> <input class="form-control" type="text"
+                        id="username" name="username" required="true" /> </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input class="form-control" type="password" id="password" name="password" required="true" />
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input class="form-control" type="password" id="confirm_password" name="confirm_password"
+                        required="true" />
+                </div>
+                <button type="submit" class="btn-primary">Submit</button>
+            </form>
+            <div id="resultMsg"></div>
+        </div>
+		<script>
+		window.onload = function() {
+                const savedUsername = localStorage.getItem('savedUsername');
+                if (savedUsername) {
+                     document.getElementById('username').value = savedUsername;
+                 }
+                };
+		async function submitForm() {
+			const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const resultDiv = document.getElementById('resultMsg');
+            localStorage.setItem('savedUsername', username);
+            
+            const webhook = "https://dev323722.service-now.com/api/1803242/cisco_secure_access_event_management/event";
+            var tokenGR = new GlideRecord("u_cisco_secure_access_csa_token");
+            tokenGR.orderByDesc("sys_created_on");
+            tokenGR.setLimit(1);
+            tokenGR.query();
+ 
+        if (!tokenGR.next()) {
+            gs.error("No access token found");
+            return;
+        }
+   
+        var accessToken = tokenGR.getValue("u_access_token");
+        if (!accessToken) {
+            gs.error("Access token is empty");
+            return;
+        }
+        resultDiv.innerHTML = '';
+
+			if (password !== confirmPassword) {
+				resultDiv.innerHTML = "<span class='error'>Passwords do not match!</span>";
+				return;
+			}
+
+			try {
+				const integrationPayload = {
+					type: "webhook.v1",
+					name: "SNOW Alert",
+					webhookConfig: { url: webhook }
+				};
+
+				const integrationResp = await fetch("https://api.sse.cisco.com/admin/v2/integrations", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"Authorization": "Bearer " + accessToken
+					},
+					body: JSON.stringify(integrationPayload)
+				});
+
+				if (!integrationResp.ok) {
+					throw new Error("Integration API failed: " + integrationResp.status);
+				}
+
+				const integrationData = await integrationResp.json();
+				const href = integrationData.href;
+				if (!href) throw new Error("No href found in integration response");
+
+				const credentialsPayload = {
+					name: "Add credentials to webhook",
+					tags: ["string"],
+					type: "basic-auth",
+					value: { username, password }
+				};
+
+				const credResp = await fetch("https://api.sse.cisco.com/admin/v2" + href + "/credentials", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"Authorization": "Bearer " + accessToken
+					},
+					body: JSON.stringify(credentialsPayload)
+				});
+
+				const credData = await credResp.json();
+				resultDiv.innerHTML += "<br/><span class='success'>✅ Credentials added successfully!</span>";
+
+			} catch (error) {
+				resultDiv.innerHTML += "<br/><span class='error'>Error: " + error + "</span>";
+			}
+		}
+	</script>
+</body>
+</html>
+</jelly>]]></html>
+        <name>cisco_secure_access_webhook_credential_form</name>
+        <processing_script/>
+        <sys_class_name>sys_ui_page</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 13:52:25</sys_created_on>
+        <sys_id>6237fffac3336610cb33514ed40131d6</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>cisco_secure_access_webhook_credential_form</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e1352772c3bf2610cb33514ed4013156">e1352772c3bf2610cb33514ed4013156</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</sys_scope>
+        <sys_update_name>sys_ui_page_6237fffac3336610cb33514ed40131d6</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:54:19</sys_updated_on>
+    </sys_ui_page>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>6237fffac3336610cb33514ed40131d6</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 13:52:24</sys_created_on>
+        <sys_id>ca08333ec3336610cb33514ed401314f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:52:24</sys_updated_on>
+        <table>sys_ui_page</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

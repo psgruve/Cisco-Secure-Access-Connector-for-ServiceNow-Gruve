@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sysauto_script">
+    <sysauto_script action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <business_calendar/>
+        <condition/>
+        <conditional>false</conditional>
+        <entered_time>1970-01-01 00:00:00</entered_time>
+        <max_drift/>
+        <name>Get destination id for destination</name>
+        <offset/>
+        <offset_type>0</offset_type>
+        <run_as display_value="System Administrator">6816f79cc0a8016401c5a33be04be441</run_as>
+        <run_as_tz/>
+        <run_dayofmonth>1</run_dayofmonth>
+        <run_dayofweek>1</run_dayofweek>
+        <run_period>1970-01-01 00:05:00</run_period>
+        <run_start>2025-09-09 05:14:35</run_start>
+        <run_time>1970-01-01 08:00:00</run_time>
+        <run_type>periodically</run_type>
+        <script><![CDATA[(function() {
+    // === Fetch Access Token ===
+    var tokenGR = new GlideRecord("x_1803242_sample_u_cisco_csa_token");
+    tokenGR.orderByDesc("sys_created_on");
+    tokenGR.setLimit(1);
+    tokenGR.query();
+
+    if (!tokenGR.next()) {
+        gs.error("No access token found");
+        return;
+    }
+
+    var accessToken = tokenGR.getValue("access_token");
+    if (!accessToken) {
+        gs.error("Access token is empty");
+        return;
+    }
+
+    // === Query u_destinations where u_destination_id is empty ===
+    var gr = new GlideRecord("u_destinations");
+    gr.addNullQuery("u_destination_id");
+    gr.query();
+
+    while (gr.next()) {
+        var destName = gr.getValue("u_destination");            
+        var listSysId = gr.getValue("u_destination_list_id"); 
+
+        // Look up actual Cisco List ID from u_destination_list table
+        var listId = null;
+        var listGR = new GlideRecord("u_destination_list");
+        if (listGR.get(listSysId)) {
+            listId = listGR.getValue("u_list_id");   // Cisco List ID
+        }
+
+        if (!listId) {
+            gs.warn("Skipping '" + destName + "' because no Cisco list ID is available.");
+            continue;
+        }
+
+
+        try {
+            var foundId = null;
+            var page = 1;
+            var hasMore = true;
+
+            while (hasMore && !foundId) {
+                var r = new sn_ws.RESTMessageV2();
+                r.setEndpoint("https://api.sse.cisco.com/policies/v2/destinationlists/" + listId + "/destinations");
+                r.setHttpMethod("GET");
+                r.setRequestHeader("Authorization", "Bearer " + accessToken);
+                r.setQueryParameter("limit", "100");
+                r.setQueryParameter("page", page.toString());
+
+                var response = r.execute();
+                var status = response.getStatusCode();
+                var body = response.getBody();
+
+                if (status == 200) {
+                    var parsed = JSON.parse(body);
+
+                    if (parsed.data && parsed.data.length > 0) {
+                        for (var i = 0; i < parsed.data.length; i++) {
+                            var item = parsed.data[i];
+
+                            if (item.destination && item.destination.toLowerCase().trim() === destName.toLowerCase().trim()) {
+                                foundId = item.id;
+                                break;
+                            }
+                        }
+
+                        // check if more pages exist
+                        hasMore = (parsed.meta && parsed.meta.totalPages && page < parsed.meta.totalPages);
+                        page++;
+                    } else {
+                        hasMore = false;
+                    }
+                } else {
+                    gs.error("API call failed for destination '" + destName + "' in list " + listId +
+                             " | Status: " + status + " | Body: " + body);
+                    hasMore = false;
+                }
+            }
+
+            if (foundId) {
+                gr.u_destination_id = String(foundId).replace(/,/g, "");
+                gr.update();
+                gs.info("Updated destination '" + destName + "' with ID: " + foundId);
+            } else {
+                gs.warn("No match found in list " + listId + " for destination: " + destName);
+            }
+
+        } catch (e) {
+            gs.error("Exception while fetching destination '" + destName + "' | " + (e.message || e.toString()));
+        }
+    }
+})();
+]]></script>
+        <sys_class_name>sysauto_script</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 05:15:45</sys_created_on>
+        <sys_id>4d81067ec3ffe210cb33514ed4013170</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>Get destination id for destination</sys_name>
+        <sys_package display_value="Global" source="global">global</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</sys_scope>
+        <sys_update_name>sysauto_script_4d81067ec3ffe210cb33514ed4013170</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:14:26</sys_updated_on>
+        <time_zone/>
+        <upgrade_safe>false</upgrade_safe>
+    </sysauto_script>
+    <sys_claim action="INSERT_OR_UPDATE">
+        <claim_owner_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</claim_owner_scope>
+        <claim_timestamp>1992e9d06430000001</claim_timestamp>
+        <metadata_update_name>sysauto_script_4d81067ec3ffe210cb33514ed4013170</metadata_update_name>
+        <previous_claim_app_version>0.0.0-CONVERTED</previous_claim_app_version>
+        <previous_claim_name>Cisco Secure Access Connector for ServiceNow Gruve</previous_claim_name>
+        <previous_claim_scope>e1352772c3bf2610cb33514ed4013156</previous_claim_scope>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 13:14:26</sys_created_on>
+        <sys_id>ce5fab3ac3ff2610cb33514ed40131da</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:14:26</sys_updated_on>
+    </sys_claim>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>4d81067ec3ffe210cb33514ed4013170</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 05:15:44</sys_created_on>
+        <sys_id>71c1c6bec3ffe210cb33514ed40131cb</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 05:15:44</sys_updated_on>
+        <table>sysauto_script</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

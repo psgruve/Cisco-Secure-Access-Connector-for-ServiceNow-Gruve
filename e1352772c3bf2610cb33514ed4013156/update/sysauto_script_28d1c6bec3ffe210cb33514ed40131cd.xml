@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sysauto_script">
+    <sysauto_script action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <business_calendar/>
+        <condition/>
+        <conditional>false</conditional>
+        <entered_time>1970-01-01 00:00:00</entered_time>
+        <max_drift/>
+        <name>Get Cisco Destination</name>
+        <offset/>
+        <offset_type>0</offset_type>
+        <run_as display_value="System Administrator">6816f79cc0a8016401c5a33be04be441</run_as>
+        <run_as_tz/>
+        <run_dayofmonth>1</run_dayofmonth>
+        <run_dayofweek>1</run_dayofweek>
+        <run_period>1970-01-01 00:05:00</run_period>
+        <run_start>2025-09-09 05:15:56</run_start>
+        <run_time>1970-01-01 08:00:00</run_time>
+        <run_type>periodically</run_type>
+        <script><![CDATA[(function() {
+    // === Fetch Access Token ===
+    var tokenGR = new GlideRecord("x_1803242_sample_u_cisco_csa_token");
+    tokenGR.orderByDesc("sys_created_on");
+    tokenGR.setLimit(1);
+    tokenGR.query();
+
+    if (!tokenGR.next()) {
+        gs.error("No access token found");
+        return;
+    }
+    var accessToken = tokenGR.getValue("access_token");
+
+    // === Loop through destination lists ===
+    var listGR = new GlideRecord("u_destination_list");
+    listGR.query();
+
+    while (listGR.next()) {
+        var listId = listGR.getValue("u_list_id");
+        var currentPage = parseInt(listGR.getValue("u_current_page") || "1");
+
+        if (!listId) {
+            gs.warn("Skipping list " + listGR.getDisplayValue("name") + " (no Cisco ID)");
+            continue;
+        }
+
+        try {
+            // Call Cisco API for current page
+            var r = new sn_ws.RESTMessageV2();
+            r.setEndpoint("https://api.sse.cisco.com/policies/v2/destinationlists/" + listId + "/destinations");
+            r.setHttpMethod("GET");
+            r.setRequestHeader("Authorization", "Bearer " + accessToken);
+            r.setQueryParameter("limit", "100");
+            r.setQueryParameter("page", currentPage.toString());
+
+            var response = r.execute();
+            var status = response.getStatusCode();
+            var body = response.getBody();
+
+            if (status == 200) {
+                var parsed = JSON.parse(body);
+
+                if (parsed.data && parsed.data.length > 0) {
+                    for (var i = 0; i < parsed.data.length; i++) {
+                        var item = parsed.data[i];
+
+                        // Check duplicates by BOTH destination_id and destination string
+                        var existing = new GlideRecord("u_destinations");
+                        existing.addQuery("u_destination_list_id", listGR.sys_id);
+                        existing.addQuery("u_destination", item.destination);
+                        existing.query();
+
+                        if (!existing.next()) {
+                            var destGR = new GlideRecord("u_destinations");
+                            destGR.initialize();
+                            destGR.u_destination = item.destination;
+                            destGR.u_destination_id = item.id;
+                            destGR.u_destination_list_id = listGR.sys_id;
+                            destGR.u_comment = item.comment;
+                            destGR.insert();
+
+                            gs.info("Inserted NEW destination: " + item.destination + " (" + item.id + ")");
+                        } else {
+                            gs.info("Skipped duplicate destination: " + item.destination);
+                        }
+                    }
+
+                    gs.info("Processed page " + currentPage + " for list " + listId);
+
+                    // Handle pagination
+                    if (parsed.meta && parsed.meta.totalPages && currentPage < parsed.meta.totalPages) {
+                        listGR.u_current_page = currentPage + 1;
+                    } else {
+                        listGR.u_current_page = 1; // Reset to 1 for next cycle
+                        gs.info("Completed all pages for list " + listId + ". Resetting to 1");
+                    }
+                    listGR.update();
+                } else {
+                    gs.info("No data returned for page " + currentPage + " in list " + listId);
+                    listGR.u_current_page = 1; 
+                    listGR.update();
+                }
+
+            } else {
+                gs.error("Cisco API error for list " + listId +
+                         " | Status: " + status + " | Body: " + body);
+            }
+
+        } catch (e) {
+            gs.error("Exception fetching list " + listId + " page " + currentPage +
+                     " | " + (e.message || e.toString()));
+        }
+    }
+})();
+]]></script>
+        <sys_class_name>sysauto_script</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 05:16:47</sys_created_on>
+        <sys_id>28d1c6bec3ffe210cb33514ed40131cd</sys_id>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_name>Get Cisco Destination</sys_name>
+        <sys_package display_value="Global" source="global">global</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</sys_scope>
+        <sys_update_name>sysauto_script_28d1c6bec3ffe210cb33514ed40131cd</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:14:55</sys_updated_on>
+        <time_zone/>
+        <upgrade_safe>false</upgrade_safe>
+    </sysauto_script>
+    <sys_claim action="INSERT_OR_UPDATE">
+        <claim_owner_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e1352772c3bf2610cb33514ed4013156</claim_owner_scope>
+        <claim_timestamp>1992e9d76410000001</claim_timestamp>
+        <metadata_update_name>sysauto_script_28d1c6bec3ffe210cb33514ed40131cd</metadata_update_name>
+        <previous_claim_app_version>0.0.0-CONVERTED</previous_claim_app_version>
+        <previous_claim_name>Cisco Secure Access Connector for ServiceNow Gruve</previous_claim_name>
+        <previous_claim_scope>e1352772c3bf2610cb33514ed4013156</previous_claim_scope>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 13:14:55</sys_created_on>
+        <sys_id>c17f237ac3ff2610cb33514ed4013138</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 13:14:55</sys_updated_on>
+    </sys_claim>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>28d1c6bec3ffe210cb33514ed40131cd</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-09 05:16:47</sys_created_on>
+        <sys_id>890286bec3ffe210cb33514ed4013111</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-09 05:16:47</sys_updated_on>
+        <table>sysauto_script</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>
