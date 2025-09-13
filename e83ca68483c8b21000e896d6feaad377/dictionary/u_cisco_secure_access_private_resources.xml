@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="c513a34883c0f21000e896d6feaad3dc" label="Cisco Secure Access Private Resources" max_length="40" name="u_cisco_secure_access_private_resources" type="collection">
+        <element label="DNS Server ID" max_length="100" name="u_dns_server_id" type="string"/>
+        <element label="Protocol Ports" max_length="1000" name="u_protocol_ports" type="string"/>
+        <element label="Certificate ID" max_length="100" name="u_certificate_id" type="string"/>
+        <element label="Reachable Addresses" max_length="1000" name="u_reachable_addresses" type="string"/>
+        <element label="Logo URL" max_length="1000" name="u_logo_url" type="string"/>
+        <element label="Name" max_length="100" name="u_name" type="string"/>
+        <element label="Modified By" max_length="100" name="u_modified_by" type="string"/>
+        <element label="Resource Group IDs" max_length="1000" name="u_resource_group_ids" type="string"/>
+        <element label="Created By" max_length="100" name="u_created_by" type="string"/>
+        <element label="Updated by" max_length="100" name="u_updated_by" type="string"/>
+        <element label="Enforcement" max_length="100" name="u_enforcement" type="string"/>
+        <element choice="1" label="Approval Status" max_length="40" name="u_approval_status" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Allow" sequence="1" value="allow"/>
+                <element inactive_on_update="false" label="Block" sequence="2" value="block"/>
+            </choice>
+        </element>
+        <element choice="1" label="Send Alert" max_length="40" name="u_send_alert" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Yes" sequence="1" value="yes"/>
+                <element inactive_on_update="false" label="No" sequence="2" value="no"/>
+            </choice>
+        </element>
+        <element label="Created At" max_length="40" name="u_created_at" type="glide_date_time"/>
+        <element label="Resource Addresses" max_length="4000" name="u_resource_addresses" type="string"/>
+        <element label="Import Source" max_length="40" name="u_import_source" type="string"/>
+        <element label="Modified At" max_length="40" name="u_modified_at" type="glide_date_time"/>
+        <element label="Description" max_length="400" name="u_description" type="string"/>
+        <element choice="1" label="Status" max_length="40" name="u_status" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Resolve" sequence="2" value="resolve"/>
+                <element inactive_on_update="false" label="Pending" sequence="1" value="pending"/>
+                <element inactive_on_update="false" label="Closed" sequence="3" value="closed"/>
+            </choice>
+        </element>
+        <element label="Resource ID" max_length="40" name="u_resource_id" type="string"/>
+        <element label="Access Types" max_length="4000" name="u_access_types" type="string"/>
+    </element>
+</database>
