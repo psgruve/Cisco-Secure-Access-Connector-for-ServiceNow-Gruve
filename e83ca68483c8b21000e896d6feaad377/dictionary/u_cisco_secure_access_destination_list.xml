@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="e65d2ec083c8b21000e896d6feaad3f9" label="Cisco Secure Access Destination List" max_length="40" name="u_cisco_secure_access_destination_list" type="collection">
+        <element label="List id" max_length="100" name="u_list_id" type="integer"/>
+        <element choice="1" label="Resource group" max_length="40" name="u_resource_group" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Block" value="block"/>
+                <element inactive_on_update="false" label="Allow" value="allow"/>
+            </choice>
+        </element>
+        <element choice="1" label="Status" max_length="40" name="u_status" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Inactive" value="inactive"/>
+                <element inactive_on_update="false" label="Active" value="active"/>
+            </choice>
+        </element>
+        <element label="Count" max_length="50" name="u_count" type="integer"/>
+        <element display="true" label="List name" max_length="255" name="u_list_name" type="string"/>
+    </element>
+</database>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sysauto_script">
+    <sysauto_script action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <advanced>true</advanced>
+        <business_calendar/>
+        <condition/>
+        <conditional>false</conditional>
+        <entered_run_end/>
+        <entered_run_start/>
+        <entered_time>1970-01-01 00:00:00</entered_time>
+        <max_drift/>
+        <name>Cisco Access Token Refresh Token</name>
+        <offset/>
+        <offset_type>0</offset_type>
+        <repeat_every/>
+        <run_as display_value="System Administrator">6816f79cc0a8016401c5a33be04be441</run_as>
+        <run_as_tz/>
+        <run_dayofmonth>1</run_dayofmonth>
+        <run_dayofweek>1</run_dayofweek>
+        <run_daysofweek/>
+        <run_end/>
+        <run_month>1</run_month>
+        <run_period>1970-01-01 01:00:00</run_period>
+        <run_start>2025-09-13 06:06:15</run_start>
+        <run_time>1970-01-01 08:00:00</run_time>
+        <run_type>periodically</run_type>
+        <run_weekinmonth>1</run_weekinmonth>
+        <script><![CDATA[(function() {
+    try {
+        var profileName = "Cisco Secure Access Auth Profile";
+
+        // ]]>🔹<![CDATA[ Fetch clientKey + clientSecret from sys_auth_profile_basic
+        var bap = new GlideRecord("sys_auth_profile_basic");
+        bap.addQuery("name", profileName);
+        bap.query();
+        if (!bap.next()) {
+            gs.error("No Basic Auth Profile found with name: " + profileName);
+            return;
+        }
+
+        var clientKey = bap.username.toString();
+        var clientSecret = bap.password.toString();
+        if (!clientKey || !clientSecret) {
+            gs.error("Missing clientKey or clientSecret in Auth Profile");
+            return;
+        }
+
+        // ]]>🔹<![CDATA[ Prepare Authorization header
+        var authString = clientKey + ":" + clientSecret;
+        var encodedAuth = GlideStringUtil.base64Encode(authString);
+
+        // ]]>🔹<![CDATA[ Call Cisco API
+        var r = new sn_ws.RESTMessageV2();
+        r.setEndpoint("https://api.sse.cisco.com/auth/v2/token");
+        r.setHttpMethod("GET");
+        r.setRequestHeader("Authorization", "Basic " + encodedAuth);
+
+        var resp = r.execute();
+        var status = resp.getStatusCode();
+        var body = resp.getBody();
+
+        gs.info("Cisco CSA Token Refresh - Status: " + status);
+        gs.info("Cisco CSA Token Refresh - Body: " + body);
+
+        if (status != 200) {
+            gs.error("Token refresh failed. Status: " + status + " Body: " + body);
+            return;
+        }
+
+        // ]]>🔹<![CDATA[ Parse response
+        var parsed;
+        try {
+            parsed = JSON.parse(body);
+        } catch (e) {
+            gs.error("Failed to parse token response: " + e.message);
+            return;
+        }
+
+        if (!parsed.access_token) {
+            gs.error("No access_token found in token response");
+            return;
+        }
+
+        var expires = parsed.expires_in;
+        var expiry = new GlideDateTime();
+        expiry.addSeconds(expires);
+
+        // ]]>🔹<![CDATA[ Clear old tokens
+        var oldTokens = new GlideRecord("u_cisco_secure_access_token");
+        oldTokens.query();
+        while (oldTokens.next()) {
+            oldTokens.deleteRecord();
+        }
+
+        // ]]>🔹<![CDATA[ Store new token
+        var gr = new GlideRecord("u_cisco_secure_access_token");
+        gr.initialize();
+        gr.u_access_token = parsed.access_token;
+        gr.u_token_type = parsed.token_type;
+        gr.u_expiry_date_time = expiry;
+        gr.u_expires_in = expires;
+        gr.u_status = "Active";
+        gr.u_created_on = new GlideDateTime();
+        var tokenId = gr.insert();
+
+        gs.info("Token refreshed successfully. New sys_id: " + tokenId);
+
+    } catch (ex) {
+        gs.error("Error refreshing token: " + ex.message);
+    }
+})();
+]]></script>
+        <sys_class_name>sysauto_script</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 06:06:48</sys_created_on>
+        <sys_id>74b3bac4830cb21000e896d6feaad39b</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>Cisco Access Token Refresh Token</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sysauto_script_74b3bac4830cb21000e896d6feaad39b</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-13 08:17:54</sys_updated_on>
+        <time_zone/>
+        <upgrade_safe>false</upgrade_safe>
+    </sysauto_script>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>74b3bac4830cb21000e896d6feaad39b</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 06:06:47</sys_created_on>
+        <sys_id>28d37e48830cb21000e896d6feaad3f8</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-13 06:06:47</sys_updated_on>
+        <table>sysauto_script</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

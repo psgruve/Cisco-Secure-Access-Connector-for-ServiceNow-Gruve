@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_documentation element="u_list_id" label="List id" language="en" table="u_cisco_secure_access_destination_list">
+        <sys_documentation action="INSERT_OR_UPDATE">
+            <element>u_list_id</element>
+            <help/>
+            <hint/>
+            <label>List id</label>
+            <language>en</language>
+            <name>u_cisco_secure_access_destination_list</name>
+            <plural>List ids</plural>
+            <sys_class_name>sys_documentation</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-09-13 05:47:25</sys_created_on>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>List id</sys_name>
+            <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+            <sys_update_name>sys_documentation_u_cisco_secure_access_destination_list_u_list_id_en</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-09-13 05:47:25</sys_updated_on>
+            <url/>
+            <url_target/>
+        </sys_documentation>
+    </sys_documentation>
+</record_update>

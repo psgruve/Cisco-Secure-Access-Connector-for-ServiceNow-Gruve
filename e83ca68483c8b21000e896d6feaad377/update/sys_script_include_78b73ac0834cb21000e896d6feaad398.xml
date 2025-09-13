@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>global.CiscoSecureAccessCredentials</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>CiscoSecureAccessCredentials</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var CiscoSecureAccessCredentials = Class.create();
+CiscoSecureAccessCredentials.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+ 
+    createProfileAndFetchToken: function() {
+        var clientKey = this.getParameter("client_key");  
+        var clientSecret = this.getParameter("client_secret");
+        if (!clientKey || !clientSecret) {
+            return "❌ Client Key and Secret are required!";
+        }
+ 
+        try {
+ 
+            var profileName = "Cisco Secure Access Auth Profile";
+ 
+                // Always insert a new Basic Auth Profile
+                var bap = new GlideRecord("sys_auth_profile_basic");
+                bap.initialize();
+                bap.name = profileName;
+                bap.username = clientKey;  
+                bap.password = clientSecret;
+                var newProfileId = bap.insert();
+ 
+                if (newProfileId) {
+                    gs.info("✅ Created new Basic Auth Profile with sys_id: " + newProfileId);
+                } else {
+                    gs.error(" Failed to create Basic Auth Profile");
+                }
+               
+            // Step 1: Prepare Authorization header
+            var authString = clientKey + ":" + clientSecret;
+            var encodedAuth = GlideStringUtil.base64Encode(authString);
+ 
+            // Step 2: Call Cisco API
+            var r = new sn_ws.RESTMessageV2();
+            r.setEndpoint("https://api.sse.cisco.com/auth/v2/token");
+            r.setHttpMethod("GET");
+            r.setRequestHeader("Authorization", "Basic " + encodedAuth);
+ 
+            var resp = r.execute();
+            var status = resp.getStatusCode();
+            var body = resp.getBody();
+ 
+            gs.info(" Cisco Secure Access API Call Status: " + status);
+            gs.info(" Cisco Secure Access API Response: " + body);
+ 
+            if (status != 200) {
+                return "❌ Failed to fetch token. HTTP Status: " + status + " Body: " + body;
+            }
+ 
+            // Step 3: Parse response
+            var parsed;
+            try {
+                parsed = JSON.parse(body);
+                var expires = parsed.expires_in;
+            } catch (e) {
+                gs.error("❌ Failed to parse token response: " + e.message);
+                return "❌ Failed to parse response";
+            }
+ 
+            if (!parsed.access_token) {
+                return "❌ No access_token found in response";
+            }
+            var expiry = new GlideDateTime();
+            expiry.addSeconds(expires);
+            // Compute expiry datetime
+           
+            var oldTokens = new GlideRecord("u_cisco_secure_access_token");
+            oldTokens.query();
+            while (oldTokens.next()) {
+                oldTokens.deleteRecord();
+            }
+ 
+            // Step 4: Store token in custom table
+            var gr = new GlideRecord("u_cisco_secure_access_token"); // Replace with your token table
+            gr.initialize();
+            gr.u_access_token = parsed.access_token;
+            gr.u_token_type = parsed.token_type;
+            gr.u_expiry_date_time = expiry;
+            gr.u_expires_in = expires;
+            gr.u_status = "Active";
+            gr.u_created_on = new GlideDateTime();
+            var tokenId = gr.insert();
+ 
+            gs.info("✅ Token stored successfully with sys_id: " + tokenId);
+ 
+            return "✅ Token successfully fetched and stored. Expires in: " + parsed.expires_in + " seconds";
+ 
+        } catch (ex) {
+            gs.error("CiscoCSASetupAjax Error: " + ex.message);
+            return "❌ Error: " + ex.message;
+        }
+    },
+ 
+    type: "CiscoSecureAccessCredentials"
+});]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 06:26:10</sys_created_on>
+        <sys_id>78b73ac0834cb21000e896d6feaad398</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>CiscoSecureAccessCredentials</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_78b73ac0834cb21000e896d6feaad398</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-13 06:26:10</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>78b73ac0834cb21000e896d6feaad398</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 06:26:09</sys_created_on>
+        <sys_id>4048b2cc830cb21000e896d6feaad315</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-13 06:26:09</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

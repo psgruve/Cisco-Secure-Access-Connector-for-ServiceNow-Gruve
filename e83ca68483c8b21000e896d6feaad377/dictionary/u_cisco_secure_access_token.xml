@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="6c22f244830cb21000e896d6feaad314" label="Cisco Secure Access Token" max_length="40" name="u_cisco_secure_access_token" type="collection">
+        <element choice="1" label="Status" max_length="40" name="u_status" type="choice">
+            <choice/>
+        </element>
+        <element label="Created On" max_length="40" name="u_created_on" type="glide_date_time"/>
+        <element label="Expires In" max_length="40" name="u_expires_in" type="integer"/>
+        <element label="Expiry Date/Time" max_length="40" name="u_expiry_date_time" type="glide_date_time"/>
+        <element label="Access Token" max_length="4000" name="u_access_token" type="string"/>
+        <element label="Token Type" max_length="40" name="u_token_type" type="string"/>
+    </element>
+</database>

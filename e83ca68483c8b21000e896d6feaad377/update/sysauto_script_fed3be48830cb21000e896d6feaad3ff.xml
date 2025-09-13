@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sysauto_script">
+    <sysauto_script action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <advanced>true</advanced>
+        <business_calendar/>
+        <condition/>
+        <conditional>false</conditional>
+        <entered_run_end/>
+        <entered_run_start/>
+        <entered_time>1970-01-01 00:00:00</entered_time>
+        <max_drift/>
+        <name>Cisco Secure Access Config Change Request State Automation  </name>
+        <offset/>
+        <offset_type>0</offset_type>
+        <repeat_every/>
+        <run_as display_value="System Administrator">6816f79cc0a8016401c5a33be04be441</run_as>
+        <run_as_tz/>
+        <run_dayofmonth>1</run_dayofmonth>
+        <run_dayofweek>1</run_dayofweek>
+        <run_daysofweek/>
+        <run_end/>
+        <run_month>1</run_month>
+        <run_period>1970-01-01 01:00:00</run_period>
+        <run_start>2025-09-13 06:06:56</run_start>
+        <run_time>1970-01-01 08:00:00</run_time>
+        <run_type>periodically</run_type>
+        <run_weekinmonth>1</run_weekinmonth>
+        <script><![CDATA[(function executeRule(current, previous /*null when async*/) {
+ 
+    var IMPLEMENT = "-1";
+    var REVIEW = 0;
+    var SCHEDULED = "-2";
+ 
+    var gr = new GlideRecord("change_request");
+    gr.addQuery("category", "CSA Configuration");
+    gr.addQuery("state", SCHEDULED);
+    gr.query();
+ 
+    var now = new GlideDateTime();
+ 
+    while (gr.next()) {
+        var start = new GlideDateTime(gr.getValue("start_date"));
+        var end = new GlideDateTime(gr.getValue("end_date"));
+ 
+        if (now.after(start) && now.before(end)) {
+            gs.info("Processing CR: " + gr.number);
+ 
+            try {
+                // === Get values from CR ===
+                var destListSysId = gr.getValue("u_destination_list") || "";
+                var destName = gr.u_destination_list.getDisplayValue();
+                var destAddr = gr.getValue("u_destination_address");
+ 
+                // Initialize variable for u_list_id
+                var destListId = "";
+                if (destListSysId) {
+                    var destGR = new GlideRecord("u_cisco_secure_access_destination_list");
+                    if (destGR.get(destListSysId)) {
+                        destListId = destGR.getValue("u_list_id");
+                    }
+                }
+ 
+                var comment = "Added by user: " + gr.opened_by +
+                    " as part of change ticket: " + gr.number;
+ 
+                // === Get latest access token from token table ===
+                var tokenGR = new GlideRecord("u_cisco_secure_access_token");
+                tokenGR.orderByDesc("sys_created_on");
+                tokenGR.setLimit(1);
+                tokenGR.query();
+ 
+                if (!tokenGR.next()) {
+                    gs.error("No access token found in u_cisco_secure_access_token table");
+                    return;
+                }
+ 
+                var accessToken = tokenGR.getValue("u_access_token");
+                if (!accessToken) {
+                    gs.error("Access token is empty in record");
+                    return;
+                }
+ 
+                // === Build payload for Add Destination API ===
+                var rawBodyArr = [];
+                var destArray = [];
+                if (destAddr) {
+                    destArray = destAddr.split(",");
+                    for (var i = 0; i < destArray.length; i++) {
+                        var addr = destArray[i].trim();
+                        if (addr) {
+                            rawBodyArr.push({
+                                destination: addr,
+                                comment: comment
+                            });
+                        }
+                    }
+                }
+ 
+                var rawBody = JSON.stringify(rawBodyArr);
+ 
+                var endpoint = "https://api.sse.cisco.com/policies/v2/destinationlists/" + destListId + "/destinations";
+ 
+                gs.info("Destination list ID: " + destListId);
+                gs.info("Destination List Name: " + destName);
+                gs.info("Destination Address: " + destAddr);
+                gs.info("Endpoint: " + endpoint);
+                gs.info("Payload: " + rawBody);
+ 
+                // === Call REST API ===
+                var resp = sendRest(endpoint, accessToken, rawBody, gr.number);
+                gs.info("Response object: " + JSON.stringify(resp));
+ 
+                // === Process response ===
+                if (resp.success) {
+                    gs.info("Response success, moving CR " + gr.number + " to REVIEW state");
+                    gr.setWorkflow(false);
+                    gr.state = REVIEW;
+                    gr.work_notes = resp.message;
+                    gr.update();
+ 
+                    // === Insert into u_destinations table (one per address) ===
+                    for (var j = 0; j < destArray.length; j++) {
+                        var addrVal = destArray[j].trim();
+                        if (addrVal) {
+                            var destInsert = new GlideRecord("u_cisco_secure_access_destinations");
+                            destInsert.initialize();
+                            destInsert.u_destination = addrVal;      
+                            destInsert.u_comment = comment;          
+                            destInsert.u_ticket_id = gr.number;      
+                            destInsert.u_destination_list_id = destListSysId;
+							if (destName == "SNOW Allow Test List") {
+                                destInsert.u_type = "Allowed";
+                            } else {
+                                destInsert.u_type = "Block";
+                            }
+                            var newId = destInsert.insert();
+                            gs.info("Inserted into u_destinations, sys_id: " + newId);
+                        }
+                    }
+ 
+                } else if (resp.message && resp.message.toLowerCase().indexOf("destination list full") !== -1) {
+                    gs.info("Destination list is full, raising alert and moving CR " + gr.number + " to IMPLEMENT state");
+ 
+                    gr.state = IMPLEMENT;
+                    gr.work_notes = "Destination list full";
+                    gr.update();
+ 
+                    var event = new GlideRecord("em_event");
+                    event.initialize();
+                    event.source = "Custom Script";
+                    event.node = "CSA_Config";
+                    event.resource = "Destination List";
+                    event.type = "Error";
+                    event.metric_name = "Destination List Full";
+                    event.severity = 2;
+                    event.description = "Destination list full for CR " + gr.number;
+                    var eventId = event.insert();
+                    gs.info("Event created: " + eventId);
+ 
+                } else {
+                    gs.info("Response failed, moving CR " + gr.number + " to IMPLEMENT state");
+                    gr.state = IMPLEMENT;
+                    gr.work_notes = "Failed: " + resp.message;
+                    gr.update();
+                }
+ 
+            } catch (ex) {
+                var message = ex.message || ex.toString();
+                gs.error("Exception while processing CR " + gr.number + ": " + message);
+ 
+                gr.state = IMPLEMENT;
+                gr.work_notes = "Exception occurred: " + message;
+                gr.update();
+            }
+        }
+    }
+ 
+    // === Helper function to call Cisco Add Destination API ===
+    function sendRest(endpoint, accessToken, rawBody, changeNum) {
+        try {
+            var r = new sn_ws.RESTMessageV2();
+            r.setEndpoint(endpoint);
+            r.setHttpMethod("POST");
+            r.setRequestHeader("Authorization", "Bearer " + accessToken);
+            r.setRequestHeader("Content-Type", "application/json");
+            r.setRequestBody(rawBody);
+ 
+            var response = r.execute();
+            var status = response.getStatusCode();
+            var body = response.getBody();
+ 
+            gs.info("CR " + changeNum + " | HTTP Status: " + status + " | Body: " + body);
+ 
+            var parsed;
+            try {
+                parsed = JSON.parse(body);
+            } catch (e) {
+                return { success: false, message: "Invalid JSON response: " + body };
+            }
+ 
+            if (status >= 200 && status < 300) {
+                return {
+                    success: true,
+                    message: "Destination added successfully for CR " + changeNum,
+                    data: parsed.data
+                };
+            } else {
+                return {
+                    success: false,
+                    message: "Cisco API error | HTTP " + status + " | Body: " + body
+                };
+            }
+        } catch (e) {
+            return { success: false, message: e.message || e.toString() };
+        }
+    }
+ 
+})(current, previous);
+ ]]></script>
+        <sys_class_name>sysauto_script</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 06:08:32</sys_created_on>
+        <sys_id>fed3be48830cb21000e896d6feaad3ff</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Cisco Secure Access Config Change Request State Automation  </sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sysauto_script_fed3be48830cb21000e896d6feaad3ff</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-13 06:08:32</sys_updated_on>
+        <time_zone/>
+        <upgrade_safe>false</upgrade_safe>
+    </sysauto_script>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>fed3be48830cb21000e896d6feaad3ff</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 06:08:31</sys_created_on>
+        <sys_id>8234ba88830cb21000e896d6feaad3ab</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-13 06:08:31</sys_updated_on>
+        <table>sysauto_script</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="e8ffa200830cb21000e896d6feaad318" label="Cisco Secure Access Destinations" max_length="40" name="u_cisco_secure_access_destinations" type="collection">
+        <element label="Comment" max_length="1000" name="u_comment" type="string"/>
+        <element label="Destination list id" max_length="32" name="u_destination_list_id" reference="u_cisco_secure_access_destination_list" type="reference"/>
+        <element label="Destination id" max_length="50" name="u_destination_id" type="integer"/>
+        <element choice="1" label="Type" max_length="40" name="u_type" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Allowed" value="allowed"/>
+                <element inactive_on_update="false" label="Blocked" value="blocked"/>
+            </choice>
+        </element>
+        <element label="Destination" max_length="255" name="u_destination" type="string"/>
+        <element label="Ticket id" max_length="255" name="u_ticket_id" type="string"/>
+        <index name="index">
+            <element name="u_destination_list_id"/>
+        </index>
+    </element>
+</database>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>global.CiscoSecureAccessGetWebhookUrl</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description>Get Webhook End Point url Dyanamically</description>
+        <mobile_callable>false</mobile_callable>
+        <name>CiscoSecureAccessGetWebhookUrl</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var CiscoSecureAccessGetWebhookUrl = Class.create();
+CiscoSecureAccessGetWebhookUrl.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+ 
+    // Simple test message
+    getMessage: function () {
+        return "Server says hello!";
+    },
+ 
+    // Fetch API Info
+    getApiInfo: function () {
+        var apiName = this.getParameter('sysparm_api_name') || "Cisco Secure Access Event Management";
+        var resourceName = "Post Event For Secure Event Management";
+ 
+        var result = {};
+ 
+        // Find API
+        var apiGR = new GlideRecord("sys_ws_definition");
+        apiGR.addQuery("name", apiName);
+        apiGR.query();
+        if (!apiGR.next()) {
+            result.error = "API not found: " + apiName;
+            return JSON.stringify(result);
+        }
+ 
+        // Find Resource
+        var resGR = new GlideRecord("sys_ws_operation");
+        resGR.addQuery("web_service_definition", apiGR.sys_id);
+        resGR.addQuery("name", resourceName);
+        resGR.query();
+        if (!resGR.next()) {
+            result.error = "Resource not found: " + resourceName;
+            return JSON.stringify(result);
+        }
+ 
+        // Build full URL
+        var instanceUrl = gs.getProperty("glide.servlet.uri") || "";
+        if (instanceUrl.endsWith("/")) {
+            instanceUrl = instanceUrl.slice(0, -1); // remove trailing slash
+        }
+ 
+        var basePath = apiGR.getValue("base_uri") || "";
+        var resPath = resGR.getValue("relative_path") || "";
+ 
+        // Normalize slashes for basePath
+        if (!basePath.startsWith("/")) {
+            basePath = "/" + basePath;
+        }
+        if (basePath.endsWith("/")) {
+            basePath = basePath.slice(0, -1);
+        }
+ 
+        // Normalize slashes for resPath
+        if (!resPath.startsWith("/")) {
+            resPath = "/" + resPath;
+        }
+ 
+        var fullUrl = instanceUrl + basePath + resPath;
+ 
+        // Return JSON
+        result = {
+            name: apiGR.getValue("name"),
+            api_id: apiGR.getValue("service_id"),
+            base_path: basePath,
+            full_url: fullUrl,
+            active: apiGR.getValue("active"),
+            is_versioned: apiGR.getValue("versioned")
+        };
+ 
+        return JSON.stringify(result);
+    },
+ 
+    type: 'CiscoSecureAccessGetWebhookUrl'
+});
+ ]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 06:13:54</sys_created_on>
+        <sys_id>4455b64c830cb21000e896d6feaad3eb</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>CiscoSecureAccessGetWebhookUrl</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_4455b64c830cb21000e896d6feaad3eb</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-13 06:14:17</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>4455b64c830cb21000e896d6feaad3eb</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 06:13:53</sys_created_on>
+        <sys_id>64757a4c830cb21000e896d6feaad300</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-13 06:13:53</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>
