@@ -4,48 +4,9 @@
         <description/>
         <name>cisco secure access UI Policy field</name>
         <record_for_rollback>true</record_for_rollback>
-        <script><![CDATA[// (function executeFixScript() {
-//     var tableName = "change_request";
-//     var categoryValue = "Cisco Secure Access"; // must match sys_choice value
-
-//     // Check if UI Policy already exists
-//     var uiPolicy = new GlideRecord("sys_ui_policy");
-//     uiPolicy.addQuery("table", tableName);
-//     uiPolicy.addQuery("short_description", "Show Destination fields for Cisco Secure Access");
-//     uiPolicy.query();
-//     if (!uiPolicy.next()) {
-//         uiPolicy.initialize();
-//         uiPolicy.table = tableName;
-//         uiPolicy.short_description = "Show Destination fields for Cisco Secure Access";
-//         uiPolicy.conditions = "category=" + categoryValue; // encoded query
-//         uiPolicy.on_load = true;
-//         uiPolicy.inherit = false;
-//         var uiPolicySysId = uiPolicy.insert();
-
-//         if (uiPolicySysId) {
-//             // UI Policy Action for Destination List
-//             var action1 = new GlideRecord("sys_ui_policy_action");
-//             action1.initialize();
-//             action1.ui_policy = uiPolicySysId;
-//             action1.field = "u_destination_list";
-//             action1.visible = "true";
-//             action1.insert();
-
-//             // UI Policy Action for Destination Address
-//             var action2 = new GlideRecord("sys_ui_policy_action");
-//             action2.initialize();
-//             action2.ui_policy = uiPolicySysId;
-//             action2.field = "u_destination_address";
-//             action2.visible = "true";
-//             action2.insert();
-//         }
-//     }
-// })();
-
-//2
-(function executeFixScript() {
+        <script><![CDATA[(function executeFixScript() {
     var tableName = "change_request";
-    var categoryValue = "Cisco Secure Access"; // must match sys_choice.value (NOT the label)
+    var categoryValue = "CSA Configuration"; // must match sys_choice.value exactly
 
     // Check if UI Policy already exists
     var uiPolicy = new GlideRecord("sys_ui_policy");
@@ -68,7 +29,7 @@
             action1.initialize();
             action1.ui_policy = uiPolicySysId;
             action1.field = "u_destination_list";
-            action1.visible = true;  // use boolean, not string
+            action1.visible = true;  // use boolean
             action1.insert();
 
             // Destination Address field action
@@ -76,26 +37,24 @@
             action2.initialize();
             action2.ui_policy = uiPolicySysId;
             action2.field = "u_destination_address";
-            action2.visible = true;  // use boolean, not string
+            action2.visible = true;  // use boolean
             action2.insert();
         }
     }
 })();
-
-
 ]]></script>
         <sys_class_name>sys_script_fix</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-16 09:56:22</sys_created_on>
         <sys_id>9b54c3c18388321000e896d6feaad3c3</sys_id>
-        <sys_mod_count>2</sys_mod_count>
+        <sys_mod_count>3</sys_mod_count>
         <sys_name>cisco secure access UI Policy field</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_fix_9b54c3c18388321000e896d6feaad3c3</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-16 12:01:32</sys_updated_on>
+        <sys_updated_on>2025-09-16 12:30:20</sys_updated_on>
         <unloadable>false</unloadable>
     </sys_script_fix>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
