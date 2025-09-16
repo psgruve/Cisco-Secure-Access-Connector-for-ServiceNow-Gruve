@@ -7,38 +7,45 @@
         <script><![CDATA[(function executeFixScript() {
     var tableName = "change_request";
     var fieldName = "category";
-    
-    // STEP 0: Delete old unwanted fields first
+
+    // STEP 0: Delete old unwanted fields (dictionary + form layout)
     gs.log("--- Deleting old unwanted fields ---");
     var unwantedFields = ['u_destination', 'u_dest_field'];
-    
+
     unwantedFields.forEach(function(fieldToDelete) {
-        var field = new GlideRecord('sys_dictionary');
-        field.addQuery('name', tableName);
-        field.addQuery('element', fieldToDelete);
-        field.query();
-        
-        if (field.next()) {
-            var fieldLabel = field.column_label.toString();
-            field.deleteRecord();
-            gs.log("Fix Script: Deleted old field " + fieldToDelete + " (Label: '" + fieldLabel + "')");
-        } else {
-            gs.log("Fix Script: Old field " + fieldToDelete + " not found (already deleted)");
+        // 0a: Delete from dictionary (actual column)
+        var dict = new GlideRecord("sys_dictionary");
+        dict.addQuery("name", tableName);
+        dict.addQuery("element", fieldToDelete);
+        dict.query();
+        while (dict.next()) {
+            gs.log("Fix Script: Deleting dictionary entry: " + dict.name + "." + dict.element);
+            dict.deleteRecord();
+        }
+
+        // 0b: Delete from form layout (sys_ui_element)
+        var ui = new GlideRecord("sys_ui_element");
+        ui.addQuery("name", tableName);
+        ui.addQuery("element", fieldToDelete);
+        ui.query();
+        while (ui.next()) {
+            gs.log("Fix Script: Deleting UI element: " + ui.name + "." + ui.element);
+            ui.deleteRecord();
         }
     });
-    
+
     // STEP 1: Add category choice
     var newChoices = [
         { value: "CSA Configuration", label: "Cisco Secure Access", sequence: 400, inactive: false },
     ];
-    
+
     newChoices.forEach(function (choice) {
         var gr = new GlideRecord("sys_choice");
         gr.addQuery("name", tableName);
         gr.addQuery("element", fieldName);
         gr.addQuery("value", choice.value);
         gr.query();
-        
+
         if (!gr.next()) {
             var newGr = new GlideRecord("sys_choice");
             newGr.initialize();
@@ -50,13 +57,13 @@
             newGr.inactive = choice.inactive;
             newGr.language = "en";
             newGr.insert();
-            
+
             gs.log("Fix Script: Inserted choice " + choice.label);
         } else {
             gs.log("Fix Script: Choice " + choice.label + " already exists");
         }
     });
-    
+
     // STEP 2: Create text field: u_destination_address
     var fieldText = new GlideRecord("sys_dictionary");
     fieldText.addQuery("name", tableName);
@@ -76,7 +83,7 @@
     } else {
         gs.log("Fix Script: Field u_destination_address already exists");
     }
-    
+
     // STEP 3: Create reference field: u_destination_list
     var fieldRef = new GlideRecord("sys_dictionary");
     fieldRef.addQuery("name", tableName);
@@ -96,13 +103,13 @@
     } else {
         gs.log("Fix Script: Field u_destination_list already exists");
     }
-    
+
     // STEP 4: Create the UI Policy record
     var policyExists = new GlideRecord('sys_ui_policy');
     policyExists.addQuery('short_description', 'Show Cisco CSA fields');
     policyExists.addQuery('table', 'change_request');
     policyExists.query();
-    
+
     var policyId;
     if (!policyExists.next()) {
         var policy = new GlideRecord('sys_ui_policy');
@@ -110,7 +117,7 @@
         policy.short_description = 'Show Cisco CSA fields';
         policy.table = 'change_request';
         policy.active = true;
-        policy.reverse_if_false = true;  // This handles hiding when condition is false
+        policy.reverse_if_false = true;  // This hides when condition is false
         policy.on_load = true;
         policy.conditions = 'category=CSA Configuration';
         policyId = policy.insert();
@@ -119,13 +126,13 @@
         policyId = policyExists.sys_id.toString();
         gs.log("Fix Script: UI Policy 'Show Cisco CSA fields' already exists with ID: " + policyId);
     }
-    
+
     // STEP 5: Create UI Policy Action for u_destination_address
     var action1Exists = new GlideRecord('sys_ui_policy_action');
     action1Exists.addQuery('ui_policy', policyId);
     action1Exists.addQuery('field', 'u_destination_address');
     action1Exists.query();
-    
+
     if (!action1Exists.next()) {
         var action1 = new GlideRecord('sys_ui_policy_action');
         action1.initialize();
@@ -139,13 +146,13 @@
     } else {
         gs.log("Fix Script: UI Policy Action for u_destination_address already exists");
     }
-    
+
     // STEP 6: Create UI Policy Action for u_destination_list
     var action2Exists = new GlideRecord('sys_ui_policy_action');
     action2Exists.addQuery('ui_policy', policyId);
     action2Exists.addQuery('field', 'u_destination_list');
     action2Exists.query();
-    
+
     if (!action2Exists.next()) {
         var action2 = new GlideRecord('sys_ui_policy_action');
         action2.initialize();
@@ -159,7 +166,7 @@
     } else {
         gs.log("Fix Script: UI Policy Action for u_destination_list already exists");
     }
-    
+
     gs.log("Fix Script: Completed successfully. Deleted old fields and created clean UI Policy for Cisco Secure Access category.");
 })();
 ]]></script>
@@ -167,14 +174,14 @@
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-16 21:05:15</sys_created_on>
         <sys_id>ec2e911d83cc721000e896d6feaad3dc</sys_id>
-        <sys_mod_count>0</sys_mod_count>
+        <sys_mod_count>1</sys_mod_count>
         <sys_name>cisco secure access choice ui policy</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_fix_ec2e911d83cc721000e896d6feaad3dc</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-16 21:05:15</sys_updated_on>
+        <sys_updated_on>2025-09-16 21:49:45</sys_updated_on>
         <unloadable>false</unloadable>
     </sys_script_fix>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
