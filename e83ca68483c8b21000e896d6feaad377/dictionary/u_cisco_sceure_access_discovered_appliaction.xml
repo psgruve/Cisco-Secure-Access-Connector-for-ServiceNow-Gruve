@@ -5,7 +5,10 @@
         <element label="Last Detected" max_length="40" name="u_last_detected" type="glide_date_time"/>
         <element label="First Detected" max_length="40" name="u_first_detected" type="glide_date_time"/>
         <element choice="1" label="Approval Status" max_length="40" name="u_approval_status" type="choice">
-            <choice/>
+            <choice>
+                <element inactive_on_update="false" label="Allow" value="allow"/>
+                <element inactive_on_update="false" label="Block"/>
+            </choice>
         </element>
         <element label="App Type" max_length="40" name="u_app_type" type="string"/>
         <element label="App ID" max_length="40" name="u_app_id" type="string"/>
