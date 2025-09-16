@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_fix">
+    <sys_script_fix action="INSERT_OR_UPDATE">
+        <before>false</before>
+        <description/>
+        <name>cisco secure access diagnosh UI policy</name>
+        <record_for_rollback>true</record_for_rollback>
+        <script><![CDATA[// Diagnostic script to check existing UI Policies and fields
+(function executeFixScript() {
+    
+    gs.log("=== DIAGNOSTIC SCRIPT START ===");
+    
+    // 1. Check all UI Policies on change_request table
+    gs.log("--- Checking UI Policies for change_request ---");
+    var policies = new GlideRecord('sys_ui_policy');
+    policies.addQuery('table', 'change_request');
+    policies.query();
+    
+    while (policies.next()) {
+        gs.log("UI Policy Found: " + policies.short_description + 
+               " | Active: " + policies.active + 
+               " | Conditions: " + policies.conditions +
+               " | ID: " + policies.sys_id);
+    }
+    
+    // 2. Check all UI Policy Actions for change_request
+    gs.log("--- Checking UI Policy Actions for change_request ---");
+    var actions = new GlideRecord('sys_ui_policy_action');
+    actions.addQuery('ui_policy.table', 'change_request');
+    actions.query();
+    
+    while (actions.next()) {
+        var policy = actions.ui_policy.getDisplayValue();
+        gs.log("UI Policy Action: Policy = " + policy + 
+               " | Field = " + actions.field + 
+               " | Visible = " + actions.visible +
+               " | Mandatory = " + actions.mandatory);
+    }
+    
+    // 3. Check custom fields on change_request
+    gs.log("--- Checking Custom Fields on change_request ---");
+    var fields = new GlideRecord('sys_dictionary');
+    fields.addQuery('name', 'change_request');
+    fields.addQuery('element', 'STARTSWITH', 'u_');
+    fields.query();
+    
+    while (fields.next()) {
+        gs.log("Custom Field: " + fields.element + 
+               " | Label: " + fields.column_label +
+               " | Type: " + fields.internal_type);
+    }
+    
+    // 4. Check for fields that might match what we see in the form
+    gs.log("--- Checking for 'destination' related fields ---");
+    var destFields = new GlideRecord('sys_dictionary');
+    destFields.addQuery('name', 'change_request');
+    destFields.addQuery('element', 'CONTAINS', 'destination');
+    destFields.query();
+    
+    while (destFields.next()) {
+        gs.log("Destination Field: " + destFields.element + 
+               " | Label: " + destFields.column_label +
+               " | Type: " + destFields.internal_type);
+    }
+    
+    gs.log("=== DIAGNOSTIC SCRIPT END ===");
+    
+})();]]></script>
+        <sys_class_name>sys_script_fix</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 19:46:55</sys_created_on>
+        <sys_id>f3dbc5d5834c721000e896d6feaad3ea</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>cisco secure access diagnosh UI policy</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_fix_f3dbc5d5834c721000e896d6feaad3ea</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 19:46:55</sys_updated_on>
+        <unloadable>false</unloadable>
+    </sys_script_fix>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>f3dbc5d5834c721000e896d6feaad3ea</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 19:46:55</sys_created_on>
+        <sys_id>974cc519834c721000e896d6feaad3e9</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 19:46:55</sys_updated_on>
+        <table>sys_script_fix</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

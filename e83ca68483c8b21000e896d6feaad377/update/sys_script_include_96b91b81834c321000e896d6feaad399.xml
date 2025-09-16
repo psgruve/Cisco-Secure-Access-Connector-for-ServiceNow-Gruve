@@ -27,13 +27,13 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 
 		var mapped = protocolMap[snowValue];
 		if (!mapped) {
-			gs.error("[CSA-SI] Invalid Protocol mapping: " + snowValue);
+			gs.error("[Cisco Secure Access -SI] Invalid Protocol mapping: " + snowValue);
 			throw new Error("Invalid Protocol selected. Must be one of: TCP, UDP, HTTP/HTTPS, Any, SSH, RDP-TCP");
 		}
 
 		// Enforce browser-only protocols
 		if (accessType === "browser" && !["HTTP/HTTPS", "SSH", "RDP-TCP"].includes(mapped)) {
-			gs.error("[CSA-SI] Browser access only supports HTTP/HTTPS, SSH, or RDP-TCP");
+			gs.error("[Cisco Secure Access -SI] Browser access only supports HTTP/HTTPS, SSH, or RDP-TCP");
 			throw new Error("Browser access must use HTTP/HTTPS, SSH, or RDP-TCP");
 		}
 
@@ -68,7 +68,7 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 			if (!proto) missingFields.push("protocol");
 
 			if (missingFields.length > 0) {
-				gs.error("[CSA-SI] ERROR: Missing mandatory fields: " + missingFields.join(", "));
+				gs.error("[Cisco Secure Access -SI] ERROR: Missing mandatory fields: " + missingFields.join(", "));
 				result.message = "Missing mandatory fields: " + missingFields.join(", ");
 				return result;
 			}
@@ -94,11 +94,11 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 				}
 			}
 
-			gs.info("[CSA-SI] Allow Groups: " + JSON.stringify(allowGroups));
-			gs.info("[CSA-SI] Block Groups: " + JSON.stringify(blockGroups));
+			gs.info("[Cisco Secure Access -SI] Allow Groups: " + JSON.stringify(allowGroups));
+			gs.info("[Cisco Secure Access -SI] Block Groups: " + JSON.stringify(blockGroups));
 
 
-			// --- Step 3: Build Access Types (Correct CSA format) ---
+			// --- Step 3: Build Access Types (Correct Cisco Secure Access  format) ---
 			var accessTypes = [];
 
 			// Branch
@@ -108,7 +108,7 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 
 			// Browser
 			if (input.zeroTrustConnections) {
-				// Force HTTPS for browser access (CSA expects this)
+				// Force HTTPS for browser access (Cisco Secure Access  expects this)
 				var browserProtocol = "HTTPS";
 				accessTypes.push({
 					type: "browser",
@@ -162,15 +162,15 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 			}
 
 			if (resourceGroupIds.length === 0) {
-				gs.error("[CSA-SI] ERROR: No resource group ID found for type " + rgType);
+				gs.error("[Cisco Secure Access -SI] ERROR: No resource group ID found for type " + rgType);
 				result.message = "No resource group ID found for type " + rgType;
 				return result;
 			}
 
-			gs.info("[CSA-SI] Selected Resource Group Type: " + rgType + ", Final IDs: " + resourceGroupIds.join(","));
+			gs.info("[Cisco Secure Access -SI] Selected Resource Group Type: " + rgType + ", Final IDs: " + resourceGroupIds.join(","));
 
 
-			// --- Step 6: Build CSA payload with only non-empty fields ---
+			// --- Step 6: Build Cisco Secure Access  payload with only non-empty fields ---
 			var payload = {};
 
 			// Required fields
@@ -188,7 +188,7 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 			var appGR = new GlideRecord('u_cmdb_ci_application');
 			appGR.initialize();
 			appGR.name = name;
-			cmdbGR.short_description = prGR2.u_description;
+			appGR.short_description = desc;
 			appGR.ip_address = ipAddr;
 			appGR.resource_addresses = JSON.stringify(resourceAddresses);
 			appGR.access_types = JSON.stringify(accessTypes);
@@ -197,9 +197,9 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 			appGR.status = "Created";
 			appGR.insert();
 
-			gs.info("[CSA-SI] CMDB entry created for {0} with RG {1}", name, rgType);
+			gs.info("[Cisco Secure Access -SI] CMDB entry created for {0} with RG {1}", name, rgType);
 
-			// --- Step 8: Call CSA REST API (Insert) ---
+			// --- Step 8: Call Cisco Secure Access  REST API (Insert) ---
 			try {
 				var restMsg = new sn_ws.RESTMessageV2('Cisco Secure Access Private Resources', 'Create Private Resources');
 				restMsg.setHttpMethod('POST');
@@ -208,11 +208,10 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 
 				// Token fetcher
 				try {
-					var tokenHelper = new x_1803242_sample_u.GetCSATokenAndRefreshToken();
-					var accessToken = tokenHelper.getAuthToken();
-					gs.info('[CSA-SI] Token fetched: ' + accessToken);
+					var token = new CiscoSecureAccessGetToken().getLatestAccessToken();
+					gs.info('[Cisco Secure Access -SI] Token fetched: ' + token);
 
-					restMsg.setRequestHeader("Authorization", "Bearer " + accessToken);
+					restMsg.setRequestHeader("Authorization", "Bearer " + token);
 				} catch (ex) {
 					gs.error('[CSA-SI] Failed to fetch token: ' + ex.message);
 					result.status = "error";
@@ -226,9 +225,9 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 				var statusCode = response.getStatusCode();
 				var body = response.getBody();
 
-				gs.info("[CSA-SI] CSA REST Response: Status={0} | Body={1}", statusCode, body);
+				gs.info("[Cisco Secure Access -SI] Cisco Secure Access  REST Response: Status={0} | Body={1}", statusCode, body);
 
-				// Store actual CSA response
+				// Store actual Cisco Secure Access  response
 				result.response.statusCode = statusCode;
 				result.response.rawResponse = body;
 
@@ -241,18 +240,18 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 				}
 				result.response.parsed = parsed;
 
-				// Use real status + CSA error if available
+				// Use real status + Cisco Secure Access  error if available
 				if (statusCode == 200 || statusCode == 201) {
 					result.status = "success";
-					result.message = "CSA Private Resource created successfully";
+					result.message = "Cisco Secure Access  Private Resource created successfully";
 					result.response.id = parsed.id || "";
 					result.response.name = parsed.name || name;
 				} else {
 					result.status = "error";
-					result.message = parsed.error || ("CSA API failed with status " + statusCode);
+					result.message = parsed.error || ("Cisco Secure Access  API failed with status " + statusCode);
 				}
 			} catch (restEx) {
-				gs.error("[CSA-SI] REST call exception: " + restEx.message);
+				gs.error("[Cisco Secure Access -SI] REST call exception: " + restEx.message);
 				result.message = restEx.message;
 			}
 
@@ -260,7 +259,7 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 			result.payload = payload;
 
 		} catch (ex) {
-			gs.error("[CSA-SI] Error: " + ex.message);
+			gs.error("[Cisco Secure Access -SI] Error: " + ex.message);
 			result.message = ex.message;
 		}
 
@@ -273,14 +272,14 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-16 11:27:00</sys_created_on>
         <sys_id>96b91b81834c321000e896d6feaad399</sys_id>
-        <sys_mod_count>1</sys_mod_count>
+        <sys_mod_count>2</sys_mod_count>
         <sys_name>CiscoSecureAccessCreatePrivateResource</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_include_96b91b81834c321000e896d6feaad399</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-16 19:15:32</sys_updated_on>
+        <sys_updated_on>2025-09-16 19:26:50</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>96b91b81834c321000e896d6feaad399</id>
