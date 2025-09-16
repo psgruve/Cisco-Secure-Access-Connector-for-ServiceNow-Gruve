@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_fix">
+    <sys_script_fix action="INSERT_OR_UPDATE">
+        <before>false</before>
+        <description/>
+        <name>cisco secure access delete old UI policy</name>
+        <record_for_rollback>true</record_for_rollback>
+        <script><![CDATA[(function executeFixScript() {
+    
+    gs.log("=== DELETE 'Show Cisco CSA fields' UI POLICIES SCRIPT START ===");
+    
+    // Delete all UI Policies with short_description = "Show Cisco CSA fields"
+    var policiesToDelete = new GlideRecord('sys_ui_policy');
+    policiesToDelete.addQuery('table', 'change_request');
+    policiesToDelete.addQuery('short_description', 'Show Cisco CSA fields');
+    policiesToDelete.query();
+    
+    var deletedCount = 0;
+    var deletedPolicyIds = [];
+    
+    while (policiesToDelete.next()) {
+        var policyId = policiesToDelete.sys_id.toString();
+        var policyName = policiesToDelete.short_description.toString();
+        var updatedOn = policiesToDelete.sys_updated_on.toString();
+        
+        // First delete all UI Policy Actions for this policy
+        var actions = new GlideRecord('sys_ui_policy_action');
+        actions.addQuery('ui_policy', policyId);
+        actions.query();
+        
+        var actionCount = 0;
+        while (actions.next()) {
+            var fieldName = actions.field.toString();
+            actions.deleteRecord();
+            actionCount++;
+            gs.log("  Deleted UI Policy Action for field: " + fieldName);
+        }
+        
+        // Then delete the UI Policy itself
+        policiesToDelete.deleteRecord();
+        deletedCount++;
+        deletedPolicyIds.push(policyId);
+        
+        gs.log("Deleted UI Policy: '" + policyName + "' (ID: " + policyId + ", Updated: " + updatedOn + ") - Removed " + actionCount + " actions");
+    }
+    
+    // Verification - check if any remain
+    gs.log("--- Verification ---");
+    var remainingPolicies = new GlideRecord('sys_ui_policy');
+    remainingPolicies.addQuery('table', 'change_request');
+    remainingPolicies.addQuery('short_description', 'Show Cisco CSA fields');
+    remainingPolicies.query();
+    
+    if (remainingPolicies.hasNext()) {
+        gs.log("⚠️ WARNING: Some 'Show Cisco CSA fields' policies still exist!");
+        while (remainingPolicies.next()) {
+            gs.log("  Remaining: " + remainingPolicies.short_description + " (ID: " + remainingPolicies.sys_id + ")");
+        }
+    } else {
+        gs.log("✅ SUCCESS: All 'Show Cisco CSA fields' UI Policies have been deleted");
+    }
+    
+    gs.log("=== DELETION COMPLETED ===");
+    gs.log("Total UI Policies deleted: " + deletedCount);
+    gs.log("Deleted Policy IDs: " + deletedPolicyIds.join(", "));
+    gs.log("✅ Ready to run your UI Policy creation fix script");
+    
+})();]]></script>
+        <sys_class_name>sys_script_fix</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 20:45:23</sys_created_on>
+        <sys_id>7199d9d183cc721000e896d6feaad383</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>cisco secure access delete old UI policy</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_fix_7199d9d183cc721000e896d6feaad383</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 20:45:23</sys_updated_on>
+        <unloadable>false</unloadable>
+    </sys_script_fix>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>7199d9d183cc721000e896d6feaad383</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 20:45:22</sys_created_on>
+        <sys_id>aba91d1583cc721000e896d6feaad396</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 20:45:22</sys_updated_on>
+        <table>sys_script_fix</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>
