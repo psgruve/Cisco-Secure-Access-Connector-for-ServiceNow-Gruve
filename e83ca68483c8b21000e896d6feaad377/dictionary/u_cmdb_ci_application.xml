@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="6cbabf018380721000e896d6feaad3ca" extends="cmdb_ci" label="CMDB CI Application" max_length="40" name="u_cmdb_ci_application" type="collection">
+        <element choice="1" label="Public Or Private" max_length="40" name="u_public_or_private" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Public" sequence="1" value="public"/>
+                <element inactive_on_update="false" label="Private" sequence="2" value="private"/>
+            </choice>
+        </element>
+        <element label="Resource ID" max_length="40" name="u_resource_id" type="integer"/>
+    </element>
+</database>
