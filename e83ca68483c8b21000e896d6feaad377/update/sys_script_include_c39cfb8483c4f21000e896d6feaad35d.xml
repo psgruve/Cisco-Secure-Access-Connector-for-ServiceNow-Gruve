@@ -11,8 +11,8 @@
         <sandbox_callable>false</sandbox_callable>
         <script><![CDATA[var Cisco_Secure_Access_Create_Approval_Alerts_Private_Resources = Class.create();
 Cisco_Secure_Access_Create_Approval_Alerts_Private_Resources.prototype = {
-    initialize: function() {
-    },
+	initialize: function () {
+	},
 
 	createIncidentsAndAlertsForPrivateResources: function () {
 		gs.info("[Cisco Secure Access - PR] STEP 1: Starting createIncidentsAndAlertsForPrivateResources()");
@@ -39,7 +39,7 @@ Cisco_Secure_Access_Create_Approval_Alerts_Private_Resources.prototype = {
 			} else {
 				gs.warn("[Cisco Secure Access - PR] - IT Securities group not found, incidents will have no assignment group.");
 			}
-			
+
 			while (gr.next()) {
 				processedCount++;
 				gs.info("[Cisco Secure Access - PR] - Processing resource " + processedCount + " of " + totalResources + ": " + gr.u_name);
@@ -88,20 +88,20 @@ Cisco_Secure_Access_Create_Approval_Alerts_Private_Resources.prototype = {
 		gs.info("[Cisco Secure Access - PR] STEP 3: Finished createIncidentsAndAlertsForPrivateResources()");
 	},
 
-    type: 'Cisco_Secure_Access_Create_Approval_Alerts_Private_Resources'
+	type: 'Cisco_Secure_Access_Create_Approval_Alerts_Private_Resources'
 };]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-13 11:25:07</sys_created_on>
         <sys_id>c39cfb8483c4f21000e896d6feaad35d</sys_id>
-        <sys_mod_count>1</sys_mod_count>
+        <sys_mod_count>2</sys_mod_count>
         <sys_name>Cisco Secure Access Create Approval Alerts Private Resources</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_include_c39cfb8483c4f21000e896d6feaad35d</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-13 11:42:27</sys_updated_on>
+        <sys_updated_on>2025-09-16 18:30:10</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>c39cfb8483c4f21000e896d6feaad35d</id>

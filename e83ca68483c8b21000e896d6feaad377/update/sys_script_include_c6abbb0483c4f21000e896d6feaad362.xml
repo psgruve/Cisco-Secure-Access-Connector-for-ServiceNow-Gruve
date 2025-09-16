@@ -19,7 +19,7 @@ Cisco_Secure_Access_Poll_Private_Resources.prototype = {
 		try {
 			// STEP 1: Get Bearer token
 			gs.info("[CSA - PR] STEP 2: Fetching Bearer token...");
-			var token = new GetCSATokenAndRefreshToken().getAuthToken();
+			var token = new CiscoSecureAccessGetToken().getLatestAccessToken();
 			// var token = "";
 			gs.info("[CSA - PR] STEP 2: Bearer token fetched: " + (token ? "SUCCESS" : "FAILED"));
 
@@ -37,7 +37,7 @@ Cisco_Secure_Access_Poll_Private_Resources.prototype = {
 
 			if (status !== 200) {
 				gs.error("[CSA - PR] ERROR: REST call failed with status " + status);
-				throw new Error("REST call failed with status " + status);
+				// throw new Error("REST call failed with status " + status);
 			}
 
 			// STEP 4: Parse response
@@ -54,7 +54,7 @@ Cisco_Secure_Access_Poll_Private_Resources.prototype = {
 			var cmdbResources = {};
 			var cmdbCount = 0;
 			while (cmdbGR.next()) {
-				var resourceId = cmdbGR.getValue('resource_id') || cmdbGR.getValue('name');
+				var resourceId = cmdbGR.getValue('u_resource_id') || cmdbGR.getValue('name');
 				cmdbResources[resourceId] = true;
 				cmdbCount++;
 			}
@@ -73,7 +73,7 @@ Cisco_Secure_Access_Poll_Private_Resources.prototype = {
 
 				if (!exists) {
 					var localGR = new GlideRecord('u_cisco_secure_access_private_resources');
-					localGR.addQuery('resource_id', resourceId);
+					localGR.addQuery('u_resource_id', resourceId);
 					localGR.query();
 
 					if (localGR.hasNext()) {
@@ -145,14 +145,14 @@ Cisco_Secure_Access_Poll_Private_Resources.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-13 11:22:05</sys_created_on>
         <sys_id>c6abbb0483c4f21000e896d6feaad362</sys_id>
-        <sys_mod_count>2</sys_mod_count>
+        <sys_mod_count>3</sys_mod_count>
         <sys_name>Cisco Secure Access Poll Private Resources</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_include_c6abbb0483c4f21000e896d6feaad362</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-16 11:25:24</sys_updated_on>
+        <sys_updated_on>2025-09-16 18:00:06</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>c6abbb0483c4f21000e896d6feaad362</id>

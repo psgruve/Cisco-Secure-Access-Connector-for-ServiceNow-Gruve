@@ -18,7 +18,7 @@ Cisco_Secure_Access_Private_Resource_Groups.prototype = {
 		try {
 			gs.info("[CSA - PRG] === Script Started ===");
 
-			// 1. Fetch existing ServiceNow table records into a map keyed by name
+			// 1. Load existing SNOW records into a map by name
 			var snowRecords = {};
 			var grSnow = new GlideRecord("u_cisco_secure_access_private_resources_group");
 			grSnow.query();
@@ -37,10 +37,10 @@ Cisco_Secure_Access_Private_Resource_Groups.prototype = {
 					};
 				}
 			}
-			gs.info("[CSA - PRG] ServiceNow records fetched. Count=" + Object.keys(snowRecords).length);
+			gs.info("[CSA - PRG] Existing SNOW records loaded: " + Object.keys(snowRecords).length);
 
 			// 2. Fetch all CSA resource groups
-			var token = new GetCSATokenAndRefreshToken().getAuthToken();
+			var token = new CiscoSecureAccessGetToken().getLatestAccessToken();
 			var r = new sn_ws.RESTMessageV2("Cisco Secure Access Private Res Groups", "GET Private Resource Groups");
 			r.setRequestHeader("Authorization", "Bearer " + token);
 			r.setRequestHeader("Accept", "application/json");
@@ -55,42 +55,78 @@ Cisco_Secure_Access_Private_Resource_Groups.prototype = {
 
 			var parsed = JSON.parse(body);
 			var csaItems = parsed.items || [];
-			gs.info("[CSA - PRG] CSA records fetched. Count=" + csaItems.length);
+			gs.info("[CSA - PRG] CSA resource groups fetched: " + csaItems.length);
 
-			// 3. Update ServiceNow rows that match CSA by name
 			var updatedCount = 0;
+			var skippedCount = 0;
+
 			for (var i = 0; i < csaItems.length; i++) {
 				var item = csaItems[i];
 				var name = item.name;
 
+				// Only update existing records
 				if (snowRecords[name]) {
 					var existing = snowRecords[name];
 					var grUpdate = new GlideRecord("u_cisco_secure_access_private_resources_group");
 					if (grUpdate.get(existing.sys_id)) {
 						var needUpdate = false;
+						var updateFields = [];
 
-						if (!existing.description && item.description) { grUpdate.setValue("u_description", item.description); needUpdate = true; }
-						if (!existing.resource_ids && item.resourceIds) { grUpdate.setValue("resource_ids", item.resourceIds.join(",")); needUpdate = true; }
-						if (!existing.created_by && item.createdBy) { grUpdate.setValue("created_by", item.createdBy); needUpdate = true; }
-						if (!existing.modified_by && item.modifiedBy) { grUpdate.setValue("modified_by", item.modifiedBy); needUpdate = true; }
-						if (!existing.created_at && item.createdAt) { grUpdate.setValue("created_at", item.createdAt); needUpdate = true; }
-						if (!existing.modified_at && item.modifiedAt) { grUpdate.setValue("modified_at", item.modifiedAt); needUpdate = true; }
-						if (!existing.resource_group_id && item.resourceGroupId) { grUpdate.setValue("resource_group_id", item.resourceGroupId); needUpdate = true; }
+						if (!existing.description && item.description) {
+							grUpdate.setValue("u_description", item.description);
+							updateFields.push("u_description");
+							needUpdate = true;
+						}
+						if (!existing.resource_ids && item.resourceIds) {
+							grUpdate.setValue("u_resource_ids", item.resourceIds.join(","));
+							updateFields.push("u_resource_ids");
+							needUpdate = true;
+						}
+						if (!existing.created_by && item.createdBy) {
+							grUpdate.setValue("u_created_by", item.createdBy);
+							updateFields.push("u_created_by");
+							needUpdate = true;
+						}
+						if (!existing.modified_by && item.modifiedBy) {
+							grUpdate.setValue("u_modified_by", item.modifiedBy);
+							updateFields.push("u_modified_by");
+							needUpdate = true;
+						}
+						if (!existing.created_at && item.createdAt) {
+							grUpdate.setValue("u_created_at", item.createdAt);
+							updateFields.push("u_created_at");
+							needUpdate = true;
+						}
+						if (!existing.modified_at && item.modifiedAt) {
+							grUpdate.setValue("u_modified_at", item.modifiedAt);
+							updateFields.push("u_modified_at");
+							needUpdate = true;
+						}
+						if (!existing.resource_group_id && item.resourceGroupId) {
+							grUpdate.setValue("u_resource_group_id", item.resourceGroupId);
+							updateFields.push("u_resource_group_id");
+							needUpdate = true;
+						}
 
 						if (needUpdate) {
 							grUpdate.update();
 							updatedCount++;
-							gs.info("[CSA - PRG] Updated SNOW record by name: " + name + " (RG ID: " + item.resourceGroupId + ")");
+							gs.info("[CSA - PRG] Updated: " + name + " | Fields: " + updateFields.join(", "));
 						} else {
-							gs.info("[CSA - PRG] No missing fields for: " + name);
+							skippedCount++;
+							gs.info("[CSA - PRG] No updates needed for: " + name);
 						}
 					}
 				} else {
-					gs.info("[CSA - PRG] CSA resource group '" + name + "' not found in SNOW table → skipped");
+					// Skipped due to no matching SNOW record
+					gs.info("[CSA - PRG] Skipped: CSA group '" + name + "' not found in SNOW.");
+					skippedCount++;
 				}
 			}
 
-			gs.info("[CSA - PRG] Completed. Records updated=" + updatedCount);
+			gs.info("[CSA - PRG] === Script Complete ===");
+			gs.info("[CSA - PRG] Records updated: " + updatedCount);
+			gs.info("[CSA - PRG] Records skipped: " + skippedCount);
 
 		} catch (e) {
 			gs.error("[CSA - PRG] Script Error: " + e.message);
@@ -103,14 +139,14 @@ Cisco_Secure_Access_Private_Resource_Groups.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-13 11:23:29</sys_created_on>
         <sys_id>2d2cb78083c4f21000e896d6feaad331</sys_id>
-        <sys_mod_count>1</sys_mod_count>
+        <sys_mod_count>3</sys_mod_count>
         <sys_name>Cisco Secure Access Private Resource Groups</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_include_2d2cb78083c4f21000e896d6feaad331</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-16 12:51:42</sys_updated_on>
+        <sys_updated_on>2025-09-16 18:20:26</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>2d2cb78083c4f21000e896d6feaad331</id>

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><database>
     <element db_object_id="a0b2ff808344f21000e896d6feaad32a" label="Cisco Secure Access Private Resources Group" max_length="40" name="u_cisco_secure_access_private_resources_group" type="collection">
         <element choice="1" label="Resource Group For" max_length="40" name="u_resource_group_for" type="choice">
-            <choice/>
+            <choice>
+                <element inactive_on_update="false" label="Block Group" sequence="2" value="block_group"/>
+                <element inactive_on_update="false" label="Allow Group" sequence="1" value="allow_group"/>
+            </choice>
         </element>
         <element label="Modified By" max_length="100" name="u_modified_by" type="string"/>
         <element label="Name" max_length="100" name="u_name" type="string"/>
@@ -12,7 +15,10 @@
         <element label="Resource IDs" max_length="4000" name="u_resource_ids" type="string"/>
         <element label="Created At" max_length="40" name="u_created_at" type="glide_date_time"/>
         <element choice="1" label="Active Status" max_length="40" name="u_active_status" type="choice">
-            <choice/>
+            <choice>
+                <element inactive_on_update="false" label="Active" sequence="1" value="active"/>
+                <element inactive_on_update="false" label="Inactive" sequence="2" value="inactive"/>
+            </choice>
         </element>
     </element>
 </database>
