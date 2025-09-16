@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>global.Cisco Secure Access Create Approval Alerts Private Resources</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Script includes Creates Alerts/Incidents For Private Resources Discovered in Cisco Secure Access</description>
+        <mobile_callable>false</mobile_callable>
+        <name>Cisco Secure Access Create Approval Alerts Private Resources</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var Cisco_Secure_Access_Create_Approval_Alerts_Private_Resources = Class.create();
+Cisco_Secure_Access_Create_Approval_Alerts_Private_Resources.prototype = {
+    initialize: function() {
+    },
+
+	createIncidentsAndAlertsForPrivateResources: function () {
+		gs.info("[Cisco Secure Access - PR] STEP 1: Starting createIncidentsAndAlertsForPrivateResources()");
+		try {
+			var gr = new GlideRecord('u_cisco_secure_access_private_resources');
+			gr.addQuery('u_send_alert', 'No');
+			gr.addQuery('u_status', 'Pending');
+			gr.query();
+
+			var totalResources = gr.getRowCount();
+			gs.info("[Cisco Secure Access - PR] - Total private resources to process: " + totalResources);
+
+			var processedCount = 0;
+
+			// Fetch IT Securities group 
+			var groupSysId = '';
+			var groupGR = new GlideRecord('sys_user_group');
+			groupGR.addQuery('name', 'IT Securities');
+			groupGR.setLimit(1);
+			groupGR.query();
+			if (groupGR.next()) {
+				groupSysId = groupGR.getUniqueValue();
+				gs.info("[Cisco Secure Access - PR] - Found IT Securities group: " + groupSysId);
+			} else {
+				gs.warn("[Cisco Secure Access - PR] - IT Securities group not found, incidents will have no assignment group.");
+			}
+			
+			while (gr.next()) {
+				processedCount++;
+				gs.info("[Cisco Secure Access - PR] - Processing resource " + processedCount + " of " + totalResources + ": " + gr.u_name);
+
+				// Create Incident
+				var inc = new GlideRecord('incident');
+				inc.initialize();
+				inc.short_description = "[Cisco Secure Access - PR] - Private Resource Approval Required: " + gr.getValue('u_name');
+
+				inc.description =
+					"Resource ID: " + gr.getValue('u_resource_id') + "\n" +
+					"Name: " + gr.getValue('u_name') + "\n" +
+					"Description: " + gr.getValue('u_description') + "\n" +
+					"Enforcement: " + gr.getValue('u_enforcement') + "\n" +
+					"Access Types: " + gr.getValue('u_access_types') + "\n" +
+					"Certificate ID: " + gr.getValue('u_certificate_id') + "\n" +
+					"Resource Addresses: " + gr.getValue('u_resource_addresses') + "\n" +
+					"Created By: " + gr.getValue('u_created_by') + "\n" +
+					"Created At: " + gr.getValue('u_created_at');
+
+				// Assign group 
+				if (groupSysId) {
+					inc.assignment_group = groupSysId;
+				}
+
+				// // Assign to specific user
+				// inc.assigned_to = '5208f945c363e210cb33514ed40131c6'; 
+				inc.status = "Pending";
+
+				var incSysId = inc.insert();
+				gs.info("[Cisco Secure Access - PR] - Created Incident for Private Resource: " + gr.u_name + " (Incident Sys ID: " + incSysId + ")");
+
+				// Update Private Resource record
+				gr.u_send_alert = "Yes";
+				gr.u_status = "Pending";
+				gr.update();
+				gs.info("[Cisco Secure Access - PR] - Updated Private Resource: " + gr.u_name + " marked as alert sent.");
+			}
+
+			gs.info("[Cisco Secure Access - PR] - Completed processing " + processedCount + " private resources for approval alerts.");
+
+		} catch (ex) {
+			gs.error('[Cisco Secure Access - PR] - Error creating approval incidents: ' + ex.message);
+			gs.error('[Cisco Secure Access - PR] - Error stack: ' + ex.stack);
+		}
+		gs.info("[Cisco Secure Access - PR] STEP 3: Finished createIncidentsAndAlertsForPrivateResources()");
+	},
+
+    type: 'Cisco_Secure_Access_Create_Approval_Alerts_Private_Resources'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 11:25:07</sys_created_on>
+        <sys_id>c39cfb8483c4f21000e896d6feaad35d</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>Cisco Secure Access Create Approval Alerts Private Resources</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_c39cfb8483c4f21000e896d6feaad35d</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-13 11:42:27</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>c39cfb8483c4f21000e896d6feaad35d</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 11:25:06</sys_created_on>
+        <sys_id>d3acbf8483c4f21000e896d6feaad35f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-13 11:25:06</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

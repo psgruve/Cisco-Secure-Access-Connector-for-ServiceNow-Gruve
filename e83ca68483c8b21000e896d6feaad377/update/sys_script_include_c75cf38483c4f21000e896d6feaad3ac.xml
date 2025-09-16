@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>global.Cisco Secure Access App Approval Processing Private Resources</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Script includes to Set App Approval Processing for Private Resources</description>
+        <mobile_callable>false</mobile_callable>
+        <name>Cisco Secure Access App Approval Processing Private Resources</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var Cisco_Secure_Access_App_Approval_Processing_Private_Resources = Class.create();
+Cisco_Secure_Access_App_Approval_Processing_Private_Resources.prototype = {
+    initialize: function() {
+    },
+
+	  process: function () {
+        try {
+            gs.info("[Cisco Secure Access - PR] Starting looped CMDB insert from Private Resources...");
+
+            // Step 1: Find latest incident for each resource_id
+            var incGR = new GlideRecord('incident');
+            incGR.addQuery('short_description', 'CONTAINS', 'Private Resource Approval Required');
+            incGR.orderByDesc('sys_created_on');
+            incGR.query();
+
+            var latestByResourceId = {};
+
+            while (incGR.next()) {
+                var resIdMatch = incGR.description ? incGR.description.match(/Resource ID:\s*(\S+)/) : null;
+                if (!resIdMatch) continue;
+                var resourceId = resIdMatch[1].trim();
+
+                // Only keep the latest incident sys_id per resource
+                if (!latestByResourceId[resourceId]) {
+                    latestByResourceId[resourceId] = incGR.getUniqueValue();
+                }
+            }
+
+            // Step 2: Update private resource approval_status from latest incident
+            for (var resourceId in latestByResourceId) {
+                var inc = new GlideRecord('incident');
+                if (!inc.get(latestByResourceId[resourceId])) continue;
+                var closeCode = (inc.close_code || inc.resolution_code || "").toLowerCase();
+                gs.info("[DEBUG] Resource ID=" + resourceId + " closeCode=" + closeCode);
+                var decision = "";
+                if (closeCode.indexOf("approved") !== -1) decision = "Allow";
+                else if (closeCode.indexOf("rejected") !== -1) decision = "Block";
+                if (!decision) continue;
+
+                // Update private resource
+                var prGR = new GlideRecord('u_cisco_secure_access_private_resources');
+                prGR.addQuery('u_resource_id', resourceId);
+                prGR.query();
+                if (prGR.next()) {
+                    prGR.u_approval_status = decision;
+                    prGR.u_status = inc.state == 7 ? 'Closed' : 'Resolved';
+                    prGR.update();
+                    gs.info("[Cisco Secure Access - PR] Updated private resource " + resourceId + " approval_status to " + decision + " and status to " + prGR.u_status);
+                }
+            }
+
+            // Step 3: Insert into Application table
+            var prGR2 = new GlideRecord('u_cisco_secure_access_private_resources');
+            prGR2.query();
+
+            var total = 0, inserted = 0, skipped = 0, mismatched = 0;
+            while (prGR2.next()) {
+                total++;
+                // Only insert if approval_status is Allow or Block
+                if (!prGR2.u_approval_status || (prGR2.u_approval_status != "Allow" && prGR2.u_approval_status != "Block")) {
+                    gs.info("[Cisco Secure Access - PR] Skipping resource_id=" + prGR2.u_resource_id + " due to approval_status=" + prGR2.u_approval_status);
+                    continue;
+                }
+
+                // Check if already in Application table
+                var cmdbCheck = new GlideRecord("x_1803242_sample_u_cmdb_ci_application");
+                cmdbCheck.addQuery('resource_id', prGR2.u_resource_id);
+                cmdbCheck.query();
+                if (cmdbCheck.next()) {
+                    gs.info("[CMDB SKIP] Resource ID=" + prGR2.u_resource_id + " already exists in Application. Skipping.");
+                    skipped++;
+                    continue;
+                }
+
+                // Insert
+                var cmdbGR = new GlideRecord("x_1803242_sample_u_cmdb_ci_application");
+                cmdbGR.initialize();
+                cmdbGR.resource_id = prGR2.u_resource_id;
+                cmdbGR.name = prGR2.u_name.toString().trim();
+                cmdbGR.approval_status = prGR2.u_approval_status;
+                cmdbGR.description = prGR2.u_description;
+                cmdbGR.status = prGR2.u_status;
+                cmdbGR.created_at = prGR2.u_created_at;
+                cmdbGR.created_by = prGR2.u_created_by;
+                // Metadata
+                cmdbGR.sys_created_on = prGR2.sys_created_on;
+                cmdbGR.sys_created_by = prGR2.sys_created_by;
+                cmdbGR.sys_updated_on = prGR2.sys_updated_on;
+                cmdbGR.sys_updated_by = prGR2.sys_updated_by;
+                cmdbGR.public_or_private = "Private";
+
+                var sysId = cmdbGR.insert();
+                if (sysId) {
+                    gs.info("[CMDB INSERT] Resource ID=" + prGR2.u_resource_id + " inserted into  Application. Sys ID=" + sysId);
+
+                    // Fetch and compare after insert
+                    var verifyGR = new GlideRecord("x_1803242_sample_u_cmdb_ci_application");
+                    if (verifyGR.get(sysId)) {
+                        var match =
+                            (verifyGR.resource_id == prGR2.u_resource_id) &&
+                            (verifyGR.name == prGR2.u_name) &&
+                            (verifyGR.approval_status == prGR2.u_approval_status) &&
+                            (verifyGR.status == prGR2.u_status);
+                        gs.info("match =:" + match);
+                        if (!match) {
+                            gs.warn("[VERIFY] Data mismatch for Resource ID=" + prGR2.u_resource_id);
+                            mismatched++;
+                        }
+                    } else {
+                        gs.warn("[VERIFY] Failed to fetch inserted record for Resource ID=" + prGR2.u_resource_id);
+                    }
+                    inserted++;
+                } else {
+                    gs.warn("[CMDB INSERT] Failed to insert Resource ID=" + prGR2.u_resource_id + " into  Application.");
+                }
+            }
+
+            gs.info("[Cisco Secure Access - PR] Summary: Total processed: " + total + ", Inserted: " + inserted + ", Skipped: " + skipped + ", Mismatched: " + mismatched);
+
+            // --- After CMDB insert loop ---
+
+            // 1. Fetch resource group IDs and descriptions
+            var allowGroupId = "", blockGroupId = "";
+            var allowGroupDesc = "", blockGroupDesc = "";
+            var allowGroupName = "SNOW Test Allow Resources";
+            var blockGroupName = "SNOW Test Block Resources";
+            var groupGR = new GlideRecord('x_1803242_sample_u_cisco_csa_private_resources_group');
+            groupGR.addQuery('name', 'IN', allowGroupName + ',' + blockGroupName);
+            groupGR.query();
+            while (groupGR.next()) {
+                if (groupGR.name == allowGroupName) {
+                    allowGroupId = groupGR.resource_group_id + "";
+                    allowGroupDesc = groupGR.description + "";
+                }
+                if (groupGR.name == blockGroupName) {
+                    blockGroupId = groupGR.resource_group_id + "";
+                    blockGroupDesc = groupGR.description + "";
+                }
+            }
+
+            // 2. Gather resource IDs for each group from the CMDB table
+            var allowResourceIds = [], blockResourceIds = [];
+            var cmdbGR = new GlideRecord('x_1803242_sample_u_cmdb_ci_application');
+            cmdbGR.query();
+            while (cmdbGR.next()) {
+                if (cmdbGR.approval_status == "Allow") allowResourceIds.push(parseInt(cmdbGR.resource_id, 10));
+                else if (cmdbGR.approval_status == "Block") blockResourceIds.push(parseInt(cmdbGR.resource_id, 10));
+            }
+
+            // 3. Build payloads
+            var allowPayload = {
+                name: allowGroupName,
+                description: allowGroupDesc,
+                resourceIds: allowResourceIds
+            };
+            var blockPayload = {
+                name: blockGroupName,
+                description: blockGroupDesc,
+                resourceIds: blockResourceIds
+            };
+
+            // 4. Send REST messages to Update Resource Group the endpoint
+            function sendGroupUpdate(groupId, payload) {
+                var token = new GetCSATokenAndRefreshToken().getAuthToken(); 
+                var restMsg = new sn_ws.RESTMessageV2('Cisco Secure Access Private Resources', 'Private Put Method');
+                restMsg.setHttpMethod('PUT');
+                restMsg.setRequestHeader("Content-Type", "application/json");
+                restMsg.setRequestHeader("Accept", "application/json");
+                restMsg.setRequestHeader("Authorization", "Bearer " + token); 
+                restMsg.setStringParameterNoEscape('id', groupId); 
+                restMsg.setRequestBody(JSON.stringify(payload));
+                var response = restMsg.execute();
+                gs.info("[Cisco Secure Access - PR] Sent group update for groupId=" + groupId + ". Status: " + response.getStatusCode());
+                gs.info("[Cisco Secure Access - PR] Response: " + response.getBody());
+            }
+
+            if (allowGroupId && allowResourceIds.length > 0) sendGroupUpdate(allowGroupId, allowPayload);
+            if (blockGroupId && blockResourceIds.length > 0) sendGroupUpdate(blockGroupId, blockPayload);
+
+            gs.info("[Cisco Secure Access - PR] - CSA Private Resource Approval Processing completed.");
+        } catch (ex) {
+            gs.error("[Cisco Secure Access - PR] - Error in processing: " + ex.message);
+        }
+    },
+
+    type: 'Cisco_Secure_Access_App_Approval_Processing_Private_Resources'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 11:24:10</sys_created_on>
+        <sys_id>c75cf38483c4f21000e896d6feaad3ac</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>Cisco Secure Access App Approval Processing Private Resources</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_c75cf38483c4f21000e896d6feaad3ac</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-13 11:45:59</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>c75cf38483c4f21000e896d6feaad3ac</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 11:24:09</sys_created_on>
+        <sys_id>6d7c378483c4f21000e896d6feaad36a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-13 11:24:09</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>
