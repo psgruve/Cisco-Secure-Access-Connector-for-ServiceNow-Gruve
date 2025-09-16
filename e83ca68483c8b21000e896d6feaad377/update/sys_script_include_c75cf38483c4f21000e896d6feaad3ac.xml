@@ -74,7 +74,7 @@ Cisco_Secure_Access_App_Approval_Processing_Private_Resources.prototype = {
                 }
 
                 // Check if already in Application table
-                var cmdbCheck = new GlideRecord("x_1803242_sample_u_cmdb_ci_application");
+                var cmdbCheck = new GlideRecord("u_cmdb_ci_application");
                 cmdbCheck.addQuery('resource_id', prGR2.u_resource_id);
                 cmdbCheck.query();
                 if (cmdbCheck.next()) {
@@ -84,7 +84,7 @@ Cisco_Secure_Access_App_Approval_Processing_Private_Resources.prototype = {
                 }
 
                 // Insert
-                var cmdbGR = new GlideRecord("x_1803242_sample_u_cmdb_ci_application");
+                var cmdbGR = new GlideRecord("u_cmdb_ci_application");
                 cmdbGR.initialize();
                 cmdbGR.resource_id = prGR2.u_resource_id;
                 cmdbGR.name = prGR2.u_name.toString().trim();
@@ -105,7 +105,7 @@ Cisco_Secure_Access_App_Approval_Processing_Private_Resources.prototype = {
                     gs.info("[CMDB INSERT] Resource ID=" + prGR2.u_resource_id + " inserted into  Application. Sys ID=" + sysId);
 
                     // Fetch and compare after insert
-                    var verifyGR = new GlideRecord("x_1803242_sample_u_cmdb_ci_application");
+                    var verifyGR = new GlideRecord("u_cmdb_ci_application");
                     if (verifyGR.get(sysId)) {
                         var match =
                             (verifyGR.resource_id == prGR2.u_resource_id) &&
@@ -135,7 +135,7 @@ Cisco_Secure_Access_App_Approval_Processing_Private_Resources.prototype = {
             var allowGroupDesc = "", blockGroupDesc = "";
             var allowGroupName = "SNOW Test Allow Resources";
             var blockGroupName = "SNOW Test Block Resources";
-            var groupGR = new GlideRecord('x_1803242_sample_u_cisco_csa_private_resources_group');
+            var groupGR = new GlideRecord('u_cisco_csa_private_resources_group');
             groupGR.addQuery('name', 'IN', allowGroupName + ',' + blockGroupName);
             groupGR.query();
             while (groupGR.next()) {
@@ -151,7 +151,7 @@ Cisco_Secure_Access_App_Approval_Processing_Private_Resources.prototype = {
 
             // 2. Gather resource IDs for each group from the CMDB table
             var allowResourceIds = [], blockResourceIds = [];
-            var cmdbGR = new GlideRecord('x_1803242_sample_u_cmdb_ci_application');
+            var cmdbGR = new GlideRecord('u_cmdb_ci_application');
             cmdbGR.query();
             while (cmdbGR.next()) {
                 if (cmdbGR.approval_status == "Allow") allowResourceIds.push(parseInt(cmdbGR.resource_id, 10));
@@ -200,14 +200,14 @@ Cisco_Secure_Access_App_Approval_Processing_Private_Resources.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-13 11:24:10</sys_created_on>
         <sys_id>c75cf38483c4f21000e896d6feaad3ac</sys_id>
-        <sys_mod_count>1</sys_mod_count>
+        <sys_mod_count>3</sys_mod_count>
         <sys_name>Cisco Secure Access App Approval Processing Private Resources</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_include_c75cf38483c4f21000e896d6feaad3ac</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-13 11:45:59</sys_updated_on>
+        <sys_updated_on>2025-09-16 11:21:13</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>c75cf38483c4f21000e896d6feaad3ac</id>

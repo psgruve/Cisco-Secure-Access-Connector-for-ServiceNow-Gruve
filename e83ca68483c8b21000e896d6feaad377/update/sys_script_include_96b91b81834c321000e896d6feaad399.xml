@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>global.CiscoSecureAccessCreatePrivateResource</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>CiscoSecureAccessCreatePrivateResource</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var CiscoSecureAccessCreatePrivateResource = Class.create();
+CiscoSecureAccessCreatePrivateResource.prototype = {
+	initialize: function () {
+	},
+
+	// --- Protocol Mapper ---
+	mapProtocol: function (snowValue, accessType) {
+		var protocolMap = {
+			"TCP-SSH": "SSH",
+			"ANY-TCP-UDP": "Any",
+			"TCP-RDP": "RDP-TCP",
+			"TCP-HTTP-HTTPS": "HTTP/HTTPS",
+			"ANY-TCP": "TCP",
+			"ANY-UDP": "UDP"
+		};
+
+		var mapped = protocolMap[snowValue];
+		if (!mapped) {
+			gs.error("[CSA-SI] Invalid Protocol mapping: " + snowValue);
+			throw new Error("Invalid Protocol selected. Must be one of: TCP, UDP, HTTP/HTTPS, Any, SSH, RDP-TCP");
+		}
+
+		// Enforce browser-only protocols
+		if (accessType === "browser" && !["HTTP/HTTPS", "SSH", "RDP-TCP"].includes(mapped)) {
+			gs.error("[CSA-SI] Browser access only supports HTTP/HTTPS, SSH, or RDP-TCP");
+			throw new Error("Browser access must use HTTP/HTTPS, SSH, or RDP-TCP");
+		}
+
+		return mapped;
+	},
+
+	createPrivateResource: function (input) {
+		var result = {
+			status: "error",
+			message: "",
+			request: {},
+			payload: {},
+			response: {}
+		};
+
+		try {
+			// --- Step 1: Input Mapping ---
+			var name = input.privateResourceName || "";
+			var desc = input.description || "";
+			var ipAddr = input.internallyAddress || "";
+			var proto = input.protocol || "ANY-TCP";
+			var ports = input.portRanges || "";
+			var rgType = (input.resourceGroupType || "").toLowerCase(); // allow or block
+			var reachableAddr = input.remotelyReachableAccess || input.internallyAddress || "";
+
+
+			// Mandatory fields check
+			var missingFields = [];
+			if (!name) missingFields.push("privateResourceName");
+			if (!ipAddr) missingFields.push("internallyAddress");
+			if (!rgType) missingFields.push("resourceGroupType");
+			if (!proto) missingFields.push("protocol");
+
+			if (missingFields.length > 0) {
+				gs.error("[CSA-SI] ERROR: Missing mandatory fields: " + missingFields.join(", "));
+				result.message = "Missing mandatory fields: " + missingFields.join(", ");
+				return result;
+			}
+
+			// --- Step 2: Fetch all Allow and Block Resource Groups ---
+			var allowGroups = [];
+			var blockGroups = [];
+
+			var listGR = new GlideRecord('u_cisco_secure_access_private_resources_group');
+			listGR.addQuery('active_status', 'Active');
+			listGR.query();
+			while (listGR.next()) {
+				var groupType = (listGR.resource_group_for + "").toLowerCase();
+				var groupObj = {
+					id: listGR.resource_group_id + "",
+					name: listGR.name + ""
+				};
+
+				if (groupType.indexOf('allow') !== -1) {
+					allowGroups.push(groupObj);
+				} else if (groupType.indexOf('block') !== -1) {
+					blockGroups.push(groupObj);
+				}
+			}
+
+			gs.info("[CSA-SI] Allow Groups: " + JSON.stringify(allowGroups));
+			gs.info("[CSA-SI] Block Groups: " + JSON.stringify(blockGroups));
+
+
+			// --- Step 3: Build Access Types (Correct CSA format) ---
+			var accessTypes = [];
+
+			// Branch
+			if (input.branchConnections) {
+				accessTypes.push({ type: "branch" });
+			}
+
+			// Browser
+			if (input.zeroTrustConnections) {
+				// Force HTTPS for browser access (CSA expects this)
+				var browserProtocol = "HTTPS";
+				accessTypes.push({
+					type: "browser",
+					externalFQDNPrefix: input.externalFQDNPrefix || "1",
+					protocol: browserProtocol,
+					sni: input.sni || "",
+					sslVerificationEnabled: input.sslVerificationEnabled !== false,
+					isWebsocketEnabled: input.isWebsocketEnabled !== undefined ? input.isWebsocketEnabled : false
+
+				});
+			}
+
+			// Network
+			if (input.vpnConnections) {
+				accessTypes.push({ type: "network" });
+			}
+
+			// Client
+			if (input.clientBaseConnection) {
+				var reachableArr = [];
+				if (reachableAddr) reachableArr.push(reachableAddr);
+				accessTypes.push({
+					type: "client",
+					reachableAddresses: reachableArr
+				});
+			}
+
+
+			// --- Step 4: Resource Addresses (with protocol mapping) ---
+			var mappedProtocol = this.mapProtocol(proto);
+
+			var resourceAddresses = [{
+				destinationAddr: [ipAddr],
+				protocolPorts: [{
+					protocol: mappedProtocol,
+					ports: ports
+				}]
+			}];
+
+			// --- Step 5: Resource Groups mapping ---
+			var resourceGroupIds = [];
+
+			if (rgType === "allow") {
+				for (var i = 0; i < allowGroups.length; i++) {
+					resourceGroupIds.push(parseInt(allowGroups[i].id, 10));
+				}
+			} else if (rgType === "block") {
+				for (var i = 0; i < blockGroups.length; i++) {
+					resourceGroupIds.push(parseInt(blockGroups[i].id, 10));
+				}
+			}
+
+			if (resourceGroupIds.length === 0) {
+				gs.error("[CSA-SI] ERROR: No resource group ID found for type " + rgType);
+				result.message = "No resource group ID found for type " + rgType;
+				return result;
+			}
+
+			gs.info("[CSA-SI] Selected Resource Group Type: " + rgType + ", Final IDs: " + resourceGroupIds.join(","));
+
+
+			// --- Step 6: Build CSA payload with only non-empty fields ---
+			var payload = {};
+
+			// Required fields
+			if (name) payload.name = name;
+			if (desc) payload.description = desc;
+			if (accessTypes && accessTypes.length > 0) payload.accessTypes = accessTypes;
+			if (resourceAddresses && resourceAddresses.length > 0) payload.resourceAddresses = resourceAddresses;
+			if (resourceGroupIds && resourceGroupIds.length > 0) payload.resourceGroupIds = resourceGroupIds;
+
+			// Optional: include only if explicitly set
+			if (input.changeRemotelyAddress === true) payload.changeRemotelyAddress = true;
+
+
+			// --- Step 7: Insert into CMDB ---
+			var appGR = new GlideRecord('u_cmdb_ci_application');
+			appGR.initialize();
+			appGR.name = name;
+			appGR.short_description = desc;
+			appGR.ip_address = ipAddr;
+			appGR.resource_addresses = JSON.stringify(resourceAddresses);
+			appGR.access_types = JSON.stringify(accessTypes);
+			appGR.resource_group = rgType;
+			appGR.resource_group_ids = resourceGroupIds.join(",");
+			appGR.status = "Created";
+			appGR.insert();
+
+			gs.info("[CSA-SI] CMDB entry created for {0} with RG {1}", name, rgType);
+
+			// --- Step 8: Call CSA REST API (Insert) ---
+			try {
+				var restMsg = new sn_ws.RESTMessageV2('Cisco Secure Access Private Resources', 'Create Private Resources');
+				restMsg.setHttpMethod('POST');
+				restMsg.setRequestHeader("Content-Type", "application/json");
+				restMsg.setRequestHeader("Accept", "application/json");
+
+				// Token fetcher
+				try {
+					var tokenHelper = new x_1803242_sample_u.GetCSATokenAndRefreshToken();
+					var accessToken = tokenHelper.getAuthToken();
+					gs.info('[CSA-SI] Token fetched: ' + accessToken);
+
+					restMsg.setRequestHeader("Authorization", "Bearer " + accessToken);
+				} catch (ex) {
+					gs.error('[CSA-SI] Failed to fetch token: ' + ex.message);
+					result.status = "error";
+					result.message = "Token fetch failed: " + ex.message;
+					return result;
+				}
+
+				restMsg.setRequestBody(JSON.stringify(payload));
+
+				var response = restMsg.execute();
+				var statusCode = response.getStatusCode();
+				var body = response.getBody();
+
+				gs.info("[CSA-SI] CSA REST Response: Status={0} | Body={1}", statusCode, body);
+
+				// Store actual CSA response
+				result.response.statusCode = statusCode;
+				result.response.rawResponse = body;
+
+				// Try to parse JSON
+				var parsed;
+				try {
+					parsed = JSON.parse(body);
+				} catch (e) {
+					parsed = { error: "Non-JSON response", body: body };
+				}
+				result.response.parsed = parsed;
+
+				// Use real status + CSA error if available
+				if (statusCode == 200 || statusCode == 201) {
+					result.status = "success";
+					result.message = "CSA Private Resource created successfully";
+					result.response.id = parsed.id || "";
+					result.response.name = parsed.name || name;
+				} else {
+					result.status = "error";
+					result.message = parsed.error || ("CSA API failed with status " + statusCode);
+				}
+			} catch (restEx) {
+				gs.error("[CSA-SI] REST call exception: " + restEx.message);
+				result.message = restEx.message;
+			}
+
+			result.request = input;
+			result.payload = payload;
+
+		} catch (ex) {
+			gs.error("[CSA-SI] Error: " + ex.message);
+			result.message = ex.message;
+		}
+
+		return result;
+	},
+
+	type: 'CiscoSecureAccessCreatePrivateResource'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 11:27:00</sys_created_on>
+        <sys_id>96b91b81834c321000e896d6feaad399</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>CiscoSecureAccessCreatePrivateResource</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_96b91b81834c321000e896d6feaad399</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 11:27:00</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>96b91b81834c321000e896d6feaad399</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 11:26:59</sys_created_on>
+        <sys_id>40e99b81834c321000e896d6feaad3ee</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 11:26:59</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

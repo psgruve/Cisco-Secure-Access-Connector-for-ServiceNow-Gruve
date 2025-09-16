@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="question_choice">
+    <question_choice action="INSERT_OR_UPDATE">
+        <inactive>false</inactive>
+        <order>100</order>
+        <published_ref/>
+        <question display_value="Protocol">ba4d53c9834c321000e896d6feaad354</question>
+        <sys_class_name>question_choice</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 11:43:38</sys_created_on>
+        <sys_id>49ad57c9834c321000e896d6feaad3dc</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>TCP – (HTTP/HTTPS) only</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>question_choice_49ad57c9834c321000e896d6feaad3dc</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 11:44:27</sys_updated_on>
+        <text>TCP – (HTTP/HTTPS) only</text>
+        <value>TCP-HTTP-HTTPS</value>
+    </question_choice>
+    <fx_price action="delete_multiple" query="id=49ad57c9834c321000e896d6feaad3dc"/>
+</record_update>
