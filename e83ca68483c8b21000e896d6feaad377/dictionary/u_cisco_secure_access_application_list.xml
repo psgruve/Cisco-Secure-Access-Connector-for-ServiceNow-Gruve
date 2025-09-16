@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="af3477418340721000e896d6feaad3fb" label="Cisco Secure Access Application List" max_length="40" name="u_cisco_secure_access_application_list" type="collection">
+        <element choice="1" label="Active Status" max_length="40" name="u_active_status" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Active" sequence="1" value="active"/>
+                <element inactive_on_update="false" label="Inactive" sequence="2" value="inactive"/>
+            </choice>
+        </element>
+        <element label="Default List" max_length="100" name="u_is_default" type="string"/>
+        <element choice="1" label="Resource Group For" max_length="40" name="u_resource_group_for" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="Allow Group" sequence="1" value="allow_group"/>
+                <element inactive_on_update="false" label="Block Group" sequence="2" value="block_group"/>
+            </choice>
+        </element>
+        <element label="Modified At" max_length="40" name="u_modified_at" type="glide_date_time"/>
+        <element label="Application List ID" max_length="40" name="u_application_list_id" type="integer"/>
+        <element label="Created At" max_length="40" name="u_created_at" type="glide_date_time"/>
+        <element label="Application List Name" max_length="255" name="u_application_list_name" type="string"/>
+    </element>
+</database>
