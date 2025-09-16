@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_fix">
+    <sys_script_fix action="DELETE">
+        <before>false</before>
+        <description/>
+        <name>cisco secure access destination field </name>
+        <record_for_rollback>true</record_for_rollback>
+        <script><![CDATA[(function executeFixScript() {
+    var tableName = "change_request";
+
+    // --- 1. Add Destination List (reference field) ---
+    var dict1 = new GlideRecord("sys_dictionary");
+    dict1.addQuery("name", tableName);
+    dict1.addQuery("element", "u_destination_list");
+    dict1.query();
+    if (!dict1.next()) {
+        dict1.initialize();
+        dict1.name = tableName;                     // table name
+        dict1.element = "u_destination_list";       // field name
+        dict1.internal_type = "reference";          // field type
+        dict1.reference = "u_cisco_secure_access_destination_list"; // reference table
+        dict1.column_label = "Destination List";    // label
+        dict1.active = true;
+        dict1.mandatory = false;
+        dict1.insert();
+        gs.print("Created field: u_destination_list");
+    }
+
+    // --- 2. Add Destination Address (string field) ---
+    var dict2 = new GlideRecord("sys_dictionary");
+    dict2.addQuery("name", tableName);
+    dict2.addQuery("element", "u_destination_address");
+    dict2.query();
+    if (!dict2.next()) {
+        dict2.initialize();
+        dict2.name = tableName;
+        dict2.element = "u_destination_address";
+        dict2.internal_type = "string";
+        dict2.column_label = "Destination Address";
+        dict2.max_length = 200;
+        dict2.active = true;
+        dict2.mandatory = false;
+        dict2.insert();
+        gs.print("Created field: u_destination_address");
+    }
+})();
+]]></script>
+        <sys_class_name>sys_script_fix</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 09:44:13</sys_created_on>
+        <sys_id>30feb2c58348321000e896d6feaad31e</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>cisco secure access destination field </sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_fix_30feb2c58348321000e896d6feaad31e</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 12:16:14</sys_updated_on>
+        <unloadable>false</unloadable>
+    </sys_script_fix>
+    <sys_es_latest_script action="DELETE">
+        <id>30feb2c58348321000e896d6feaad31e</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 09:43:57</sys_created_on>
+        <sys_id>36420b0d8348321000e896d6feaad377</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 09:43:57</sys_updated_on>
+        <table>sys_script_fix</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</application>
+        <file_path/>
+        <instance_id>864a7fa41bb6b190c84543f4bd4bcb1a</instance_id>
+        <instance_name>dev225624</instance_name>
+        <name>sys_script_fix_30feb2c58348321000e896d6feaad31e</name>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_script_fix"&gt;&lt;sys_script_fix action="INSERT_OR_UPDATE"&gt;&lt;before&gt;false&lt;/before&gt;&lt;description/&gt;&lt;name&gt;cisco secure access destination field &lt;/name&gt;&lt;record_for_rollback&gt;true&lt;/record_for_rollback&gt;&lt;script&gt;&lt;![CDATA[(function executeFixScript() {
+    var tableName = "change_request";
+
+    // --- 1. Add Destination List (reference field) ---
+    var dict1 = new GlideRecord("sys_dictionary");
+    dict1.addQuery("name", tableName);
+    dict1.addQuery("element", "u_destination_list");
+    dict1.query();
+    if (!dict1.next()) {
+        dict1.initialize();
+        dict1.name = tableName;                     // table name
+        dict1.element = "u_destination_list";       // field name
+        dict1.internal_type = "reference";          // field type
+        dict1.reference = "u_cisco_secure_access_destination_list"; // reference table
+        dict1.column_label = "Destination List";    // label
+        dict1.active = true;
+        dict1.mandatory = false;
+        dict1.insert();
+        gs.print("Created field: u_destination_list");
+    }
+
+    // --- 2. Add Destination Address (string field) ---
+    var dict2 = new GlideRecord("sys_dictionary");
+    dict2.addQuery("name", tableName);
+    dict2.addQuery("element", "u_destination_address");
+    dict2.query();
+    if (!dict2.next()) {
+        dict2.initialize();
+        dict2.name = tableName;
+        dict2.element = "u_destination_address";
+        dict2.internal_type = "string";
+        dict2.column_label = "Destination Address";
+        dict2.max_length = 200;
+        dict2.active = true;
+        dict2.mandatory = false;
+        dict2.insert();
+        gs.print("Created field: u_destination_address");
+    }
+})();
+]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script_fix&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2025-09-16 09:44:13&lt;/sys_created_on&gt;&lt;sys_id&gt;30feb2c58348321000e896d6feaad31e&lt;/sys_id&gt;&lt;sys_mod_count&gt;2&lt;/sys_mod_count&gt;&lt;sys_name&gt;cisco secure access destination field &lt;/sys_name&gt;&lt;sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377"&gt;e83ca68483c8b21000e896d6feaad377&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve"&gt;e83ca68483c8b21000e896d6feaad377&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_fix_30feb2c58348321000e896d6feaad31e&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2025-09-16 12:16:14&lt;/sys_updated_on&gt;&lt;unloadable&gt;false&lt;/unloadable&gt;&lt;/sys_script_fix&gt;&lt;sys_es_latest_script action="INSERT_OR_UPDATE"&gt;&lt;id&gt;30feb2c58348321000e896d6feaad31e&lt;/id&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2025-09-16 09:43:57&lt;/sys_created_on&gt;&lt;sys_id&gt;36420b0d8348321000e896d6feaad377&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2025-09-16 09:43:57&lt;/sys_updated_on&gt;&lt;table&gt;sys_script_fix&lt;/table&gt;&lt;use_es_latest&gt;true&lt;/use_es_latest&gt;&lt;/sys_es_latest_script&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>1889999534</payload_hash>
+        <record_name>cisco secure access destination field </record_name>
+        <reverted_from/>
+        <source>7b675eb783b7221000e896d6feaad3c1</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 12:16:14</sys_created_on>
+        <sys_id>e125638d838c321000e896d6feaad3dd</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>19952743f250000001</sys_recorded_at>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 12:16:14</sys_updated_on>
+        <type>Fix Script</type>
+        <update_guid>6925638d538c3210cea9f9eaf071c3dc</update_guid>
+        <update_guid_history>6925638d538c3210cea9f9eaf071c3dc:1889999534,80c2cbcd6848321092ac72ff0638c4ec:-1714390400,ba528f894a083210869f2306ff639507:-113501584</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 13:17:54</sys_created_on>
+        <sys_db_object display_value="" name="sys_script_fix">sys_script_fix</sys_db_object>
+        <sys_id>9518d0b4408c4497acc8fd6b808dcab9</sys_id>
+        <sys_metadata>30feb2c58348321000e896d6feaad31e</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>cisco secure access destination field </sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_scope_delete display_value="">dc48029113d145e48da0dcb1695ce190</sys_scope_delete>
+        <sys_update_name>sys_script_fix_30feb2c58348321000e896d6feaad31e</sys_update_name>
+        <sys_update_version display_value="sys_script_fix_30feb2c58348321000e896d6feaad31e">e125638d838c321000e896d6feaad3dd</sys_update_version>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 13:17:54</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

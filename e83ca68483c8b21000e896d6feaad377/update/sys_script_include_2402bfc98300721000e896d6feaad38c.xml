@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>global.CiscoSecureAccessGetToken</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>CiscoSecureAccessGetToken</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var CiscoSecureAccessGetToken = Class.create();
+CiscoSecureAccessGetToken.prototype = {
+	initialize: function () {
+	},
+
+	getLatestAccessToken: function () {
+		var tokenGR = new GlideRecord("u_cisco_secure_access_token");
+		tokenGR.orderByDesc("sys_created_on");
+		tokenGR.setLimit(1);
+		tokenGR.query();
+
+		if (!tokenGR.next()) {
+			gs.error("[GetCiscoSecureAccessToken] No access token found");
+			return null;
+		}
+
+		var accessToken = tokenGR.getValue("u_access_token");
+		if (!accessToken) {
+			gs.error("[GetCiscoSecureAccessToken] Access token is empty");
+			return null;
+		}
+
+		return accessToken;
+	},
+
+	type: 'CiscoSecureAccessGetToken'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 13:13:08</sys_created_on>
+        <sys_id>2402bfc98300721000e896d6feaad38c</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>CiscoSecureAccessGetToken</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_2402bfc98300721000e896d6feaad38c</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 13:13:08</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>2402bfc98300721000e896d6feaad38c</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 13:13:08</sys_created_on>
+        <sys_id>4f22ffc58300721000e896d6feaad38b</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 13:13:08</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

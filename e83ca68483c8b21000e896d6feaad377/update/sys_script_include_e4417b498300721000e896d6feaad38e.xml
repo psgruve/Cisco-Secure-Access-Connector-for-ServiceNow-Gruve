@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>global.Cisco Secure Access Public Create Approval Alert </api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>Cisco Secure Access Public Create Approval Alert </name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var Cisco_Secure_Access_Public_Create_Approval_Alert_ = Class.create();
+Cisco_Secure_Access_Public_Create_Approval_Alert_.prototype = {
+	initialize: function () {
+	},
+
+	createApprovalAlerts: function () {
+		gs.info("[Cisco Secure Access -  IC] STEP 1: Starting createApprovalAlerts()");
+		try {
+			// STEP 2: Query discovered applications needing alerts/incidents
+			var gr = new GlideRecord('x_1803242_sample_u_discovered_applications_userapp');
+			gr.addQuery('u_send_alert', 'No');
+			gr.query();
+
+			var totalApps = gr.getRowCount();
+			gs.info("[Cisco Secure Access -  IC] STEP 2: Total discovered apps to process: " + totalApps);
+
+			var processedCount = 0;
+			var alertsCreated = 0;
+			var incidentsCreated = 0;
+			var i = 1;
+			while (gr.next() && i <= 1) {
+				i++;
+				processedCount++;
+				var weightedRisk = (gr.u_weighted_risk || "").toLowerCase();
+				var appName = gr.u_app_name || gr.getValue('name');
+
+				gs.info("[Cisco Secure Access -  IC] STEP 3: Processing app " + processedCount + " of " + totalApps + ": " + appName + " (Weighted Risk: " + weightedRisk + ")");
+
+				// Map weighted risk to severity
+				var severityMap = {
+					"very high": "1", // Critical
+					"high": "2",      // Major
+					"medium": "3",    // Minor
+					"low": "4",       // Warning
+					"very low": "5"   // OK
+				};
+				var severity = severityMap[weightedRisk] || "0"; // Default to Clear
+
+				// Check for existing alert for this app
+				var checkAlert = new GlideRecord('em_alert');
+				checkAlert.addQuery('short_description', '[Cisco Secure Access -  IC] - App Approval Alert: ' + appName);
+				checkAlert.orderByDesc('sys_created_on');
+				checkAlert.setLimit(1);
+				checkAlert.query();
+
+				var now = new GlideDateTime();
+				var alertExists = false;
+
+				if (checkAlert.next()) {
+					var alertStatus = checkAlert.getValue('state');
+					var alertCreated = new GlideDateTime(checkAlert.getValue('sys_created_on'));
+					var diffMs = GlideDateTime.subtract(now, alertCreated).getNumericValue();
+					var diffHours = diffMs / (1000 * 60 * 60);
+
+					if (alertStatus == "Closed" || alertStatus == "No") {
+						alertExists = false;
+					} 
+				}
+
+				if (!alertExists) {
+					var alertGR = new GlideRecord('em_alert');
+					alertGR.initialize();
+					alertGR.short_description = "[Cisco Secure Access -  IC] - App Approval Alert: " + appName;
+					alertGR.description =
+						"App ID: " + gr.u_app_id + "\n" +
+						"Name: " + appName + "\n" +
+						"Weighted Risk: " + gr.u_weighted_risk + "\n" +
+						"Category: " + gr.u_category + "\n" +
+						"Subcategory: " + gr.u_subcategory + "\n" +
+						"App Type: " + gr.u_app_type + "\n" +
+						"First Detected: " + gr.u_first_detected + "\n" +
+						"Last Detected: " + gr.u_last_detected;
+					alertGR.severity = severity;
+					alertGR.state = "Open";
+					alertGR.source = "CSA App Sync";
+					alertGR.insert();
+					alertsCreated++;
+					gs.info("[Cisco Secure Access -  IC] STEP 4: Created alert for app: " + appName);
+				}
+
+				// STEP 5: (Commented) Create INCIDENT for weighted risk == high/very high
+				/*
+				if (weightedRisk === "high" || weightedRisk === "very high") {
+					var incGR = new GlideRecord('incident');
+					incGR.initialize();
+					incGR.short_description = "[Cisco Secure Access -  IC] - App Approval Incident: " + appName;
+					incGR.description =
+						"App ID: " + gr.u_app_id + "\n" +
+						"Name: " + appName + "\n" +
+						"Weighted Risk: " + gr.u_weighted_risk + "\n" +
+						"Category: " + gr.u_category + "\n" +
+						"Subcategory: " + gr.u_subcategory + "\n" +
+						"App Type: " + gr.u_app_type + "\n" +
+						"First Detected: " + gr.u_first_detected + "\n" +
+						"Last Detected: " + gr.u_last_detected;
+					incGR.u_status = "Pending";
+					incGR.insert();
+					incidentsCreated++;
+					gs.info("[Cisco Secure Access -  IC] STEP 5: Created incident for app: " + appName);
+				}
+				*/
+
+				// STEP 6: Update discovered application to mark alert as sent
+				gr.u_send_alert = "Yes";
+				gr.u_status = "Pending";
+				gr.update();
+				gs.info("[Cisco Secure Access -  IC] STEP 6: Updated discovered application: " + appName + " marked as alert sent.");
+			}
+
+			gs.info("[Cisco Secure Access -  IC] STEP 7: Completed processing " + processedCount + " apps. Alerts created: " + alertsCreated + ", Incidents created: " + incidentsCreated);
+
+		} catch (ex) {
+			gs.error('[Cisco Secure Access -  IC] ERROR: ' + ex.message);
+			gs.error('[Cisco Secure Access -  IC] ERROR stack: ' + ex.stack);
+		}
+		gs.info("[Cisco Secure Access -  IC] STEP 8: Finished createApprovalAlerts()");
+	},
+
+	type: 'Cisco_Secure_Access_Public_Create_Approval_Alert_'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 13:09:33</sys_created_on>
+        <sys_id>e4417b498300721000e896d6feaad38e</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Cisco Secure Access Public Create Approval Alert </sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_e4417b498300721000e896d6feaad38e</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 13:09:33</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>e4417b498300721000e896d6feaad38e</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 13:09:31</sys_created_on>
+        <sys_id>865133898300721000e896d6feaad32a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 13:09:31</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

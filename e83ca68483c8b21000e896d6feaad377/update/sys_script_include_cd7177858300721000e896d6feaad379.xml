@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>global.Cisco Secure Access Public App Approval Processing</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>Cisco Secure Access Public App Approval Processing</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var Cisco_Secure_Access_Public_App_Approval_Processing = Class.create();
+Cisco_Secure_Access_Public_App_Approval_Processing.prototype = {
+	initialize: function () {
+	},
+	process: function () {
+		try {
+			gs.info("x_1803242_sample_u: [CSA-DECISION] START Combined Scan, limit=100");
+
+			// 1. Fetch discovered applications with u_send_alert = Yes
+			var daGR = new GlideRecord('x_1803242_sample_u_discovered_applications_userapp');
+			daGR.addQuery('u_send_alert', 'Yes');
+			daGR.setLimit(100);
+			daGR.query();
+
+			var processedApps = {};
+			var approvedCodes = ["Approved App Access Granted"];
+			var rejectedCodes = ["Rejected App Access Granted"];
+
+			var processedCount = 0, skippedCount = 0;
+
+			while (daGR.next()) {
+				var appId = daGR.u_app_id + "";
+				var appName = daGR.u_app_name + "";
+
+				// 2. Check for closed alerts linked to this app
+				var alertGR = new GlideRecord('em_alert');
+				alertGR.addQuery('source', 'CSA App Sync');
+				alertGR.addQuery('state', 'Closed');
+				alertGR.addQuery('description', 'CONTAINS', appId);
+				alertGR.orderByDesc('sys_created_on');
+				alertGR.query();
+
+				if (!alertGR.next()) {
+					gs.info("x_1803242_sample_u: [SKIP] App=" + appName + " (" + appId + ") → No closed alert found.");
+					skippedCount++;
+					continue;
+				}
+
+				// 3. Fetch linked incident
+				var incidentSysId = alertGR.incident;
+				if (!incidentSysId) {
+					gs.warn("x_1803242_sample_u: [SKIP] App=" + appName + " → No linked incident found in alert.");
+					skippedCount++;
+					continue;
+				}
+
+				var incGR = new GlideRecord('incident');
+				if (!incGR.get(incidentSysId)) {
+					gs.warn("x_1803242_sample_u: [SKIP] App=" + appName + " → Incident not found for sys_id=" + incidentSysId);
+					skippedCount++;
+					continue;
+				}
+
+				// 4. Decide Allow/Block from close_code only (normalize spaces)
+				var codeRaw = incGR.close_code || "";
+				var code = codeRaw.replace(/\s+/g, " ").trim();
+				var decision = "";
+				if (approvedCodes.indexOf(code) !== -1) decision = "Allow";
+				else if (rejectedCodes.indexOf(code) !== -1) decision = "Block";
+
+
+				if (!decision) {
+					gs.warn("x_1803242_sample_u: [SKIP] App=" + appName +
+						" → No valid decision code found in incident " + incGR.number +
+						" (close_code=" + code + ")");
+					skippedCount++;
+					continue;
+				}
+
+				// 5. Update discovered app record
+				daGR.u_approval_status = decision;
+				daGR.u_status = (incGR.state == 7) ? "Closed" : "Resolved";
+				daGR.u_label = "Reviewed";
+				daGR.u_notes = ((incGR.resolution_notes || incGR.close_notes || "").trim()) +
+					" | Processed via incident " + incGR.number;
+				daGR.u_send_alert = "Yes"; // keep it as processed
+				daGR.update();
+
+				gs.info("x_1803242_sample_u: [MATCH] " + appName + " (" + appId + ") → " + incGR.number + " [" + code + "] → " + decision);
+
+				// 6. Add to processedApps map
+				processedApps[appId] = {
+					application_id: appId,
+					name: appName,
+					approval_status: decision,
+					subcategory: daGR.u_subcategory + "",
+					label: daGR.u_label + "",
+					comments: daGR.u_notes + "",
+					install_status: "Installed",
+					first_discovered: daGR.u_discovery_date + "",
+					discovery_source: daGR.u_discovered_in + "",
+					technical_owner: "CSA System",
+					owned_by: "Central IT",
+					support_group: "IT Support",
+					description: "Processed via CSA workflow"
+				};
+
+				processedCount++;
+			}
+
+			gs.info("x_1803242_sample_u: === SUMMARY ===");
+			gs.info("x_1803242_sample_u: Processed=" + processedCount + " | Skipped=" + skippedCount);
+
+			// --- CMDB Insert/Update ---
+			Object.keys(processedApps).forEach(function (appId) {
+				var app = processedApps[appId];
+				var cmdbCheckGR = new GlideRecord('x_1803242_sample_u_cmdb_ci_application');
+				cmdbCheckGR.addQuery('application_id', app.application_id);
+				cmdbCheckGR.query();
+
+				if (cmdbCheckGR.next()) {
+					gs.info("x_1803242_sample_u: [CMDB SKIP] App=" + app.name + " (" + app.application_id + ") already exists in CMDB");
+				} else {
+					var cmdbGR = new GlideRecord('x_1803242_sample_u_cmdb_ci_application');
+					cmdbGR.initialize();
+					cmdbGR.application_id = app.application_id;
+					cmdbGR.name = app.name;
+					cmdbGR.approval_status = app.approval_status;
+					cmdbGR.subcategory = app.subcategory;
+					cmdbGR.label = app.label;
+					cmdbGR.comments = app.comments;
+					cmdbGR.install_status = app.install_status;
+					cmdbGR.first_discovered = app.first_discovered;
+					cmdbGR.discovery_source = app.discovery_source;
+					cmdbGR.technical_owner = app.technical_owner;
+					cmdbGR.owned_by = app.owned_by;
+					cmdbGR.support_group = app.support_group;
+					cmdbGR.description = app.description;
+					cmdbGR.public_or_private = "public";
+					var sysId = cmdbGR.insert();
+					if (sysId) {
+						gs.info("x_1803242_sample_u: [CMDB INSERT] App=" + app.name + " (" + app.application_id + ") inserted into CMDB. Sys ID=" + sysId);
+					} else {
+						gs.warn("x_1803242_sample_u: [CMDB INSERT] Failed for App=" + app.name);
+					}
+				}
+			});
+
+			// --- Build Allow/Block payloads ---
+			var allowAppIds = [], blockAppIds = [];
+			Object.keys(processedApps).forEach(function (appId) {
+				var app = processedApps[appId];
+				if (app.approval_status === "Allow") allowAppIds.push(app.application_id);
+				else if (app.approval_status === "Block") blockAppIds.push(app.application_id);
+			});
+
+			gs.info("x_1803242_sample_u: Allow Apps (" + allowAppIds.length + "): " + JSON.stringify(allowAppIds));
+			gs.info("x_1803242_sample_u: Block Apps (" + blockAppIds.length + "): " + JSON.stringify(blockAppIds));
+
+			gs.info("x_1803242_sample_u: [CSA-DECISION] END Decision Scan");
+			gs.info("[CSA-IR] - Step 1: Fetching active application lists...");
+
+			var allowListId = "", blockListId = "";
+			var allowListName = "", blockListName = "";
+			var allowListIsDefault = false, blockListIsDefault = false;
+
+			var appListGR = new GlideRecord('x_1803242_sample_u_cisco_csa_application_list');
+			appListGR.addQuery('u_active_status', 'Active'); // Only active lists
+			appListGR.query();
+
+			while (appListGR.next()) {
+				var groupFor = appListGR.u_resource_group_for + "";
+				if (groupFor.toLowerCase().includes("allow")) {
+					allowListId = appListGR.u_application_list_id + "";
+					allowListName = appListGR.u_application_list_name + "";
+					allowListIsDefault = (appListGR.u_is_default == "true");
+				}
+				if (groupFor.toLowerCase().includes("block")) {
+					blockListId = appListGR.u_application_list_id + "";
+					blockListName = appListGR.u_application_list_name + "";
+					blockListIsDefault = (appListGR.u_is_default == "true");
+				}
+			}
+
+			gs.info("[CSA-IR] - Active Allow List: " + allowListName + " (ID=" + allowListId + ")");
+			gs.info("[CSA-IR] - Active Block List: " + blockListName + " (ID=" + blockListId + ")");
+
+			// --- Build payloads dynamically ---
+			var allowAppIds = [], blockAppIds = [];
+			Object.keys(processedApps).forEach(function (appId) {
+				var app = processedApps[appId];
+				if (app.approval_status === "Allow") allowAppIds.push(app.application_id);
+				else if (app.approval_status === "Block") blockAppIds.push(app.application_id);
+			});
+
+			// Fetch active application lists for Allow/Block
+			var allowListId = "", allowListName = "", allowListIsDefault = false;
+			var blockListId = "", blockListName = "", blockListIsDefault = false;
+
+			var listGR = new GlideRecord('x_1803242_sample_u_cisco_csa_application_list');
+			listGR.addQuery('u_active_status', 'Active');
+			listGR.query();
+			while (listGR.next()) {
+				var groupFor = listGR.u_resource_group_for + "";
+				if (groupFor.toLowerCase().indexOf('allow') !== -1) {
+					allowListId = listGR.u_application_list_id + "";
+					allowListName = listGR.u_application_list_name + "";
+					allowListIsDefault = (listGR.u_is_default == "true");
+				}
+				if (groupFor.toLowerCase().indexOf('block') !== -1) {
+					blockListId = listGR.u_application_list_id + "";
+					blockListName = listGR.u_application_list_name + "";
+					blockListIsDefault = (listGR.u_is_default == "true");
+				}
+			}
+
+			// --- Create payload objects ---
+			var allowPayload = {
+				applicationCategoryIds: [],
+				applicationIds: allowAppIds,
+				applicationListName: allowListName,
+				isDefault: allowListIsDefault
+			};
+
+			var blockPayload = {
+				applicationCategoryIds: [],
+				applicationIds: blockAppIds,
+				applicationListName: blockListName,
+				isDefault: blockListIsDefault
+			};
+
+			// --- REST call function ---
+			function sendApplicationListUpdate(listId, payload, type) {
+				if (!payload.applicationIds || payload.applicationIds.length === 0) {
+					gs.info("[CSA-IR] No " + type + " apps to send. Skipping REST call.");
+					return;
+				}
+
+				try {
+					var restMsg = new sn_ws.RESTMessageV2('Cisco SSE - Application List', 'Update Application List');
+					restMsg.setHttpMethod('PUT');
+					restMsg.setRequestHeader("Content-Type", "application/json");
+					restMsg.setRequestHeader("Accept", "application/json");
+
+					// Token example; replace with your method
+					var token = new GetCSATokenAndRefreshToken().getAuthToken();
+					restMsg.setRequestHeader("Authorization", "Bearer " + token);
+
+					// Variable substitution in endpoint
+					restMsg.setStringParameterNoEscape('EnterApplicationListID', listId);
+					restMsg.setRequestBody(JSON.stringify(payload));
+
+					var response = restMsg.execute();
+					gs.info("[CSA-IR] REST Response (" + type + ") for listId=" + listId +
+						": Status=" + response.getStatusCode() + " | Body=" + response.getBody());
+
+				} catch (ex) {
+					gs.error("[CSA-IR] REST call exception for " + type + ": " + ex.message);
+				}
+			}
+
+			// --- Validation function ---
+			function validateAppIds(appIds, type) {
+				var invalidIds = appIds.filter(function (id) {
+					return isNaN(parseInt(id));
+				});
+				if (invalidIds.length > 0) {
+					gs.error("[CSA-IR] ERROR: Cannot send " + type + " payload. Non-integer application IDs found: " + JSON.stringify(invalidIds));
+					return false;
+				}
+				return true;
+			}
+
+			// --- Log final payloads for review ---
+			gs.info("[CSA-IR] === FINAL PAYLOADS BEFORE REST CALL ===");
+			gs.info("[CSA-IR] Allow Payload: " + JSON.stringify({
+				applicationCategoryIds: allowPayload.applicationCategoryIds,
+				applicationIds: allowAppIds,  // These are strings
+				applicationListName: allowPayload.applicationListName,
+				isDefault: allowPayload.isDefault
+			}));
+			gs.info("[CSA-IR] Block Payload: " + JSON.stringify({
+				applicationCategoryIds: blockPayload.applicationCategoryIds,
+				applicationIds: blockAppIds,  // These are strings
+				applicationListName: blockPayload.applicationListName,
+				isDefault: blockPayload.isDefault
+			}));
+			gs.info("[CSA-IR] ================================");
+
+			// --- Send updates with validation ---
+			if (allowListId) {
+				if (validateAppIds(allowPayload.applicationIds, "Allow")) {
+					sendApplicationListUpdate(allowListId, allowPayload, "Allow");
+				} else {
+					gs.error("[CSA-IR] Allow payload skipped due to invalid IDs.");
+				}
+			}
+
+			if (blockListId) {
+				if (validateAppIds(blockPayload.applicationIds, "Block")) {
+					sendApplicationListUpdate(blockListId, blockPayload, "Block");
+				} else {
+					gs.error("[CSA-IR] Block payload skipped due to invalid IDs.");
+				}
+			}
+
+
+		} catch (ex) {
+			gs.error("x_1803242_sample_u: ERROR in processing: " + ex.message);
+		}
+	},
+
+	type: 'Cisco_Secure_Access_Public_App_Approval_Processing'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 13:10:39</sys_created_on>
+        <sys_id>cd7177858300721000e896d6feaad379</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Cisco Secure Access Public App Approval Processing</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_cd7177858300721000e896d6feaad379</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 13:10:39</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>cd7177858300721000e896d6feaad379</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 13:10:35</sys_created_on>
+        <sys_id>6591b7898300721000e896d6feaad344</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 13:10:35</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

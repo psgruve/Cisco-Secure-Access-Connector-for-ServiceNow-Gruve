@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>global.Cisco Secure Access Poll Public Application</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>Cisco Secure Access Poll Public Application</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var Cisco_Secure_Access_Poll_Public_Application = Class.create();
+Cisco_Secure_Access_Poll_Public_Application.prototype = {
+	initialize: function () {
+	},
+
+	pollCSA: function () {
+		gs.info("[CSA - GA] STEP 1: Starting PollCiscoSSEAPIuserapp.pollCSA()");
+		try {
+			// STEP 1: Get Bearer token
+			gs.info("[CSA - GA] STEP 2: Fetching Bearer token...");
+			var token = new GetCSATokenAndRefreshToken().getAuthToken();
+			gs.info("[CSA - GA] STEP 2: Bearer token fetched: " + (token ? "SUCCESS" : "FAILED"));
+
+			// STEP 2: Call Cisco CSA API (Get Application List)
+			gs.info("[CSA - GA] STEP 3: Executing REST Message 'Cisco SSE - MockUser', Method 'Get Discovered Apps'...");
+			var r = new sn_ws.RESTMessageV2('Cisco SSE - MockUser', 'Get Discovered Apps');
+			r.setRequestHeader("Authorization", "Bearer " + token);
+			r.setRequestHeader("Accept", "application/json");
+			var response = r.execute();
+			var status = response.getStatusCode();
+			gs.info("[CSA - GA] STEP 3: REST response status: " + status);
+
+			var responseBody = response.getBody();
+			gs.info("[CSA - GA] STEP 3: Raw Response: " + responseBody);
+
+			if (status !== 200) {
+				gs.error("[CSA - GA] ERROR: REST call failed with status " + status);
+				throw new Error("REST call failed with status " + status);
+			}
+
+			// STEP 3: Parse response
+			gs.info("[CSA - GA] STEP 4: Parsing response...");
+			var parsed = JSON.parse(responseBody);
+			var csaResources = parsed.items || [];
+			gs.info("[CSA - GA] STEP 4: Total resources fetched from CSA: " + csaResources.length);
+
+			// STEP 4: Build CMDB resource list
+			gs.info("[CSA - GA] STEP 5: Querying CMDB table...");
+			var cmdbGR = new GlideRecord('x_1803242_sample_u_cmdb_ci_application');
+			cmdbGR.query();
+
+			var cmdbResources = {};
+			var cmdbCount = 0;
+			while (cmdbGR.next()) {
+				var resourceId = cmdbGR.getValue('resource_id') || cmdbGR.getValue('name');
+				cmdbResources[resourceId] = true;
+				cmdbCount++;
+			}
+			gs.info("[CSA - GA] STEP 5: Total resources in CMDB: " + cmdbCount);
+
+			// STEP 5: Insert new resources into the local discovered applications table
+			gs.info("[CSA - GA] STEP 6: Inserting new resources into discovered applications table...");
+			var inserted = [];
+
+			for (var i = 0; i < csaResources.length; i++) {
+				var res = csaResources[i];
+				var resourceId = res.resourceId || res.id || res.name;
+
+				// --- Check if resource already exists in CMDB or local table ---
+				var exists = cmdbResources[resourceId];
+
+				if (!exists) {
+					var localGR = new GlideRecord('x_1803242_sample_u_discovered_applications_userapp');
+					localGR.addQuery('u_app_id', resourceId);
+					localGR.query();
+
+					if (localGR.hasNext()) {
+						gs.info("[CSA - GA] STEP 6: Resource already exists in local table: " + resourceId);
+						exists = true;
+					}
+				}
+
+				// --- Insert only if not exists anywhere ---
+				if (!exists) {
+					var gr = new GlideRecord('x_1803242_sample_u_discovered_applications_userapp');
+					gr.initialize();
+
+					// --- Default flags ---
+					gr.u_status = "pending";
+					gr.u_send_alert = "no";
+
+					// --- Map CSA fields ---
+					gr.u_app_id = resourceId;
+					gr.u_app_name = res.name || "";
+					gr.u_category = res.category || "";
+					gr.u_label = res.label || "";
+					gr.u_weighted_risk = res.weightedRisk || "";
+					gr.u_app_type = res.appType || "";
+					gr.u_subcategory = res.subcategory || "";
+					gr.u_subcategory_content_types = Array.isArray(res.subcategory_content_types) ? res.subcategory_content_types.join(",") : "";
+					gr.u_first_detected = res.firstDetected || "";
+					gr.u_last_detected = res.lastDetected || "";
+					gr.u_discovery_date = new GlideDateTime();
+					gr.u_discovered_in = "CSA";
+
+					var sysId = gr.insert();
+					gs.info("[CSA - GA] STEP 6: Inserted resource: " + (res.name || resourceId) + " (sys_id: " + sysId + ")");
+					inserted.push(res.name || resourceId);
+				} else {
+					gs.info("[CSA - GA] STEP 6: Resource skipped (already exists): " + resourceId);
+				}
+			}
+
+			if (inserted.length > 0) {
+				gs.info("[CSA - GA] STEP 7: Inserted new discovered applications: " + inserted.join(", "));
+			} else {
+				gs.info("[CSA - GA] STEP 7: No new resources to insert.");
+			}
+
+			gs.info("[CSA - GA] STEP 8: PollCiscoSSEAPIuserapp.pollCSA() completed.");
+
+		} catch (ex) {
+			gs.error('[CSA - GA] ERROR: Failed to import discovered applications: ' + ex.message);
+		}
+
+	},
+
+	type: 'Cisco_Secure_Access_Poll_Public_Application'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 13:07:51</sys_created_on>
+        <sys_id>9ce0bf098300721000e896d6feaad364</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>Cisco Secure Access Poll Public Application</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_9ce0bf098300721000e896d6feaad364</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 13:08:16</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>9ce0bf098300721000e896d6feaad364</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 13:07:50</sys_created_on>
+        <sys_id>6df073498300721000e896d6feaad341</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 13:07:50</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

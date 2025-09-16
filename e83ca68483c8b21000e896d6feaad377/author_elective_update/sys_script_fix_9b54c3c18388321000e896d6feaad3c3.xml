@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_fix">
+    <sys_script_fix action="DELETE">
+        <before>false</before>
+        <description/>
+        <name>cisco secure access UI Policy field</name>
+        <record_for_rollback>true</record_for_rollback>
+        <script><![CDATA[(function executeFixScript() {
+    var tableName = "change_request";
+    var categoryValue = "CSA Configuration"; // must match sys_choice.value exactly
+
+    // Check if UI Policy already exists
+    var uiPolicy = new GlideRecord("sys_ui_policy");
+    uiPolicy.addQuery("table", tableName);
+    uiPolicy.addQuery("short_description", "Show Destination fields for Cisco Secure Access");
+    uiPolicy.query();
+
+    if (!uiPolicy.next()) {
+        uiPolicy.initialize();
+        uiPolicy.table = tableName;
+        uiPolicy.short_description = "Show Destination fields for Cisco Secure Access";
+        uiPolicy.conditions = "category=" + categoryValue; // encoded query string
+        uiPolicy.on_load = true;
+        uiPolicy.inherit = false;
+        var uiPolicySysId = uiPolicy.insert();
+
+        if (uiPolicySysId) {
+            // Destination List field action
+            var action1 = new GlideRecord("sys_ui_policy_action");
+            action1.initialize();
+            action1.ui_policy = uiPolicySysId;
+            action1.field = "u_destination_list";
+            action1.visible = true;  // use boolean
+            action1.insert();
+
+            // Destination Address field action
+            var action2 = new GlideRecord("sys_ui_policy_action");
+            action2.initialize();
+            action2.ui_policy = uiPolicySysId;
+            action2.field = "u_destination_address";
+            action2.visible = true;  // use boolean
+            action2.insert();
+        }
+    }
+})();
+]]></script>
+        <sys_class_name>sys_script_fix</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 09:56:22</sys_created_on>
+        <sys_id>9b54c3c18388321000e896d6feaad3c3</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>cisco secure access UI Policy field</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_fix_9b54c3c18388321000e896d6feaad3c3</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 12:30:20</sys_updated_on>
+        <unloadable>false</unloadable>
+    </sys_script_fix>
+    <sys_es_latest_script action="DELETE">
+        <id>9b54c3c18388321000e896d6feaad3c3</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 09:56:21</sys_created_on>
+        <sys_id>64250f058388321000e896d6feaad3c8</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 09:56:21</sys_updated_on>
+        <table>sys_script_fix</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</application>
+        <file_path/>
+        <instance_id>864a7fa41bb6b190c84543f4bd4bcb1a</instance_id>
+        <instance_name>dev225624</instance_name>
+        <name>sys_script_fix_9b54c3c18388321000e896d6feaad3c3</name>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_script_fix"&gt;&lt;sys_script_fix action="INSERT_OR_UPDATE"&gt;&lt;before&gt;false&lt;/before&gt;&lt;description/&gt;&lt;name&gt;cisco secure access UI Policy field&lt;/name&gt;&lt;record_for_rollback&gt;true&lt;/record_for_rollback&gt;&lt;script&gt;&lt;![CDATA[(function executeFixScript() {
+    var tableName = "change_request";
+    var categoryValue = "CSA Configuration"; // must match sys_choice.value exactly
+
+    // Check if UI Policy already exists
+    var uiPolicy = new GlideRecord("sys_ui_policy");
+    uiPolicy.addQuery("table", tableName);
+    uiPolicy.addQuery("short_description", "Show Destination fields for Cisco Secure Access");
+    uiPolicy.query();
+
+    if (!uiPolicy.next()) {
+        uiPolicy.initialize();
+        uiPolicy.table = tableName;
+        uiPolicy.short_description = "Show Destination fields for Cisco Secure Access";
+        uiPolicy.conditions = "category=" + categoryValue; // encoded query string
+        uiPolicy.on_load = true;
+        uiPolicy.inherit = false;
+        var uiPolicySysId = uiPolicy.insert();
+
+        if (uiPolicySysId) {
+            // Destination List field action
+            var action1 = new GlideRecord("sys_ui_policy_action");
+            action1.initialize();
+            action1.ui_policy = uiPolicySysId;
+            action1.field = "u_destination_list";
+            action1.visible = true;  // use boolean
+            action1.insert();
+
+            // Destination Address field action
+            var action2 = new GlideRecord("sys_ui_policy_action");
+            action2.initialize();
+            action2.ui_policy = uiPolicySysId;
+            action2.field = "u_destination_address";
+            action2.visible = true;  // use boolean
+            action2.insert();
+        }
+    }
+})();
+]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script_fix&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2025-09-16 09:56:22&lt;/sys_created_on&gt;&lt;sys_id&gt;9b54c3c18388321000e896d6feaad3c3&lt;/sys_id&gt;&lt;sys_mod_count&gt;3&lt;/sys_mod_count&gt;&lt;sys_name&gt;cisco secure access UI Policy field&lt;/sys_name&gt;&lt;sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377"&gt;e83ca68483c8b21000e896d6feaad377&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve"&gt;e83ca68483c8b21000e896d6feaad377&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_fix_9b54c3c18388321000e896d6feaad3c3&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2025-09-16 12:30:20&lt;/sys_updated_on&gt;&lt;unloadable&gt;false&lt;/unloadable&gt;&lt;/sys_script_fix&gt;&lt;sys_es_latest_script action="INSERT_OR_UPDATE"&gt;&lt;id&gt;9b54c3c18388321000e896d6feaad3c3&lt;/id&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2025-09-16 09:56:21&lt;/sys_created_on&gt;&lt;sys_id&gt;64250f058388321000e896d6feaad3c8&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2025-09-16 09:56:21&lt;/sys_updated_on&gt;&lt;table&gt;sys_script_fix&lt;/table&gt;&lt;use_es_latest&gt;true&lt;/use_es_latest&gt;&lt;/sys_es_latest_script&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>1825268949</payload_hash>
+        <record_name>cisco secure access UI Policy field</record_name>
+        <reverted_from/>
+        <source>7b675eb783b7221000e896d6feaad3c1</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 12:30:20</sys_created_on>
+        <sys_id>0868e34583cc321000e896d6feaad3ce</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>199528129240000001</sys_recorded_at>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 12:30:20</sys_updated_on>
+        <type>Fix Script</type>
+        <update_guid>8c68e345eacc3210bf4d050e068ac2cd</update_guid>
+        <update_guid_history>8c68e345eacc3210bf4d050e068ac2cd:1825268949,1ec1ef45398c3210cf6332b4618099af:-1641487175,dc3c8b05a1c8321096c21c2287b4eee4:1526415865,7c250f05198832102882e8989284fcca:1219883697</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 13:17:54</sys_created_on>
+        <sys_db_object display_value="" name="sys_script_fix">sys_script_fix</sys_db_object>
+        <sys_id>04763c1ad3664a8393656676dddd43c9</sys_id>
+        <sys_metadata>9b54c3c18388321000e896d6feaad3c3</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>cisco secure access UI Policy field</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_scope_delete display_value="">dc48029113d145e48da0dcb1695ce190</sys_scope_delete>
+        <sys_update_name>sys_script_fix_9b54c3c18388321000e896d6feaad3c3</sys_update_name>
+        <sys_update_version display_value="sys_script_fix_9b54c3c18388321000e896d6feaad3c3">0868e34583cc321000e896d6feaad3ce</sys_update_version>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 13:17:54</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

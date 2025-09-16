@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="ab62bf0d8300721000e896d6feaad32e" label="Cisco Sceure Access Discovered Appliaction" max_length="40" name="u_cisco_sceure_access_discovered_appliaction" type="collection">
+        <element label="App Name" max_length="40" name="u_app_name" type="string"/>
+        <element label="Weighted Risk" max_length="40" name="u_weighted_risk" type="string"/>
+        <element label="Last Detected" max_length="40" name="u_last_detected" type="glide_date_time"/>
+        <element label="First Detected" max_length="40" name="u_first_detected" type="glide_date_time"/>
+        <element choice="1" label="Approval Status" max_length="40" name="u_approval_status" type="choice">
+            <choice/>
+        </element>
+        <element label="App Type" max_length="40" name="u_app_type" type="string"/>
+        <element label="App ID" max_length="40" name="u_app_id" type="string"/>
+        <element choice="1" label="Status" max_length="40" name="u_status" type="choice">
+            <choice/>
+        </element>
+        <element label="Label" max_length="100" name="u_label" type="string"/>
+        <element label="Discovery Date" max_length="40" name="u_discovery_date" type="glide_date_time"/>
+        <element label="Subcategory" max_length="100" name="u_subcategory" type="string"/>
+        <element choice="1" label="Discovered In" max_length="40" name="u_discovered_in" type="choice">
+            <choice/>
+        </element>
+        <element label="Category" max_length="40" name="u_category" type="string"/>
+        <element label="Subcategory Content Types" max_length="100" name="u_subcategory_content_types" type="string"/>
+        <element choice="1" label="Send Alert" max_length="40" name="u_send_alert" type="choice">
+            <choice/>
+        </element>
+    </element>
+</database>

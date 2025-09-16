@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_fix">
+    <sys_script_fix action="DELETE">
+        <before>false</before>
+        <description>Adding chices in the change request form </description>
+        <name>Cisco Secure Access Choices Change Req</name>
+        <record_for_rollback>true</record_for_rollback>
+        <script><![CDATA[(function executeFixScript() {
+    var tableName = "change_request";
+    var fieldName = "category";
+
+    // list of choices
+    var newChoices = [
+        { value: "test_software", label: "Test Software", sequence: 100, inactive: false },
+        { value: "test_hardware", label: "Test Hardware", sequence: 200, inactive: false },
+        { value: "test_network", label: "Test Network", sequence: 300, inactive: false },
+		{ value: "Cisco Secure Access2", label: "CSA Configuration2", sequence: 400, inactive: false},
+		{ value: "CSA Configuration", label: "Cisco Secure Access", sequence: 400, inactive: false }
+    ];
+
+    newChoices.forEach(function(choice) {
+        var gr = new GlideRecord("sys_choice");
+        gr.addQuery("name", tableName);
+        gr.addQuery("element", fieldName);
+        gr.addQuery("value", choice.value);
+        gr.query();
+
+        if (!gr.next()) {
+            var newGr = new GlideRecord("sys_choice");
+            newGr.initialize();
+            newGr.name = tableName;
+            newGr.element = fieldName;
+            newGr.value = choice.value;
+            newGr.label = choice.label;
+            newGr.sequence = choice.sequence;
+            newGr.inactive = choice.inactive;
+            newGr.language = "en";
+            newGr.insert();
+
+            gs.log("Fix Script: Inserted choice " + choice.label);
+        } else {
+            gs.log("Fix Script: Choice " + choice.label + " already exists");
+        }
+    });
+})();
+]]></script>
+        <sys_class_name>sys_script_fix</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 07:53:44</sys_created_on>
+        <sys_id>1e8acf808300f21000e896d6feaad368</sys_id>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_name>Cisco Secure Access Choices Change Req</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_fix_1e8acf808300f21000e896d6feaad368</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 12:24:00</sys_updated_on>
+        <unloadable>false</unloadable>
+    </sys_script_fix>
+    <sys_es_latest_script action="DELETE">
+        <id>1e8acf808300f21000e896d6feaad368</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-13 07:53:44</sys_created_on>
+        <sys_id>8b4c83c48300f21000e896d6feaad310</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-13 07:53:44</sys_updated_on>
+        <table>sys_script_fix</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</application>
+        <file_path/>
+        <instance_id>864a7fa41bb6b190c84543f4bd4bcb1a</instance_id>
+        <instance_name>dev225624</instance_name>
+        <name>sys_script_fix_1e8acf808300f21000e896d6feaad368</name>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_script_fix"&gt;&lt;sys_script_fix action="INSERT_OR_UPDATE"&gt;&lt;before&gt;false&lt;/before&gt;&lt;description&gt;Adding chices in the change request form &lt;/description&gt;&lt;name&gt;Cisco Secure Access Choices Change Req&lt;/name&gt;&lt;record_for_rollback&gt;true&lt;/record_for_rollback&gt;&lt;script&gt;&lt;![CDATA[(function executeFixScript() {
+    var tableName = "change_request";
+    var fieldName = "category";
+
+    // list of choices
+    var newChoices = [
+        { value: "test_software", label: "Test Software", sequence: 100, inactive: false },
+        { value: "test_hardware", label: "Test Hardware", sequence: 200, inactive: false },
+        { value: "test_network", label: "Test Network", sequence: 300, inactive: false },
+		{ value: "Cisco Secure Access2", label: "CSA Configuration2", sequence: 400, inactive: false},
+		{ value: "CSA Configuration", label: "Cisco Secure Access", sequence: 400, inactive: false }
+    ];
+
+    newChoices.forEach(function(choice) {
+        var gr = new GlideRecord("sys_choice");
+        gr.addQuery("name", tableName);
+        gr.addQuery("element", fieldName);
+        gr.addQuery("value", choice.value);
+        gr.query();
+
+        if (!gr.next()) {
+            var newGr = new GlideRecord("sys_choice");
+            newGr.initialize();
+            newGr.name = tableName;
+            newGr.element = fieldName;
+            newGr.value = choice.value;
+            newGr.label = choice.label;
+            newGr.sequence = choice.sequence;
+            newGr.inactive = choice.inactive;
+            newGr.language = "en";
+            newGr.insert();
+
+            gs.log("Fix Script: Inserted choice " + choice.label);
+        } else {
+            gs.log("Fix Script: Choice " + choice.label + " already exists");
+        }
+    });
+})();
+]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script_fix&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2025-09-13 07:53:44&lt;/sys_created_on&gt;&lt;sys_id&gt;1e8acf808300f21000e896d6feaad368&lt;/sys_id&gt;&lt;sys_mod_count&gt;5&lt;/sys_mod_count&gt;&lt;sys_name&gt;Cisco Secure Access Choices Change Req&lt;/sys_name&gt;&lt;sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377"&gt;e83ca68483c8b21000e896d6feaad377&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve"&gt;e83ca68483c8b21000e896d6feaad377&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_fix_1e8acf808300f21000e896d6feaad368&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2025-09-16 12:24:00&lt;/sys_updated_on&gt;&lt;unloadable&gt;false&lt;/unloadable&gt;&lt;/sys_script_fix&gt;&lt;sys_es_latest_script action="INSERT_OR_UPDATE"&gt;&lt;id&gt;1e8acf808300f21000e896d6feaad368&lt;/id&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2025-09-13 07:53:44&lt;/sys_created_on&gt;&lt;sys_id&gt;8b4c83c48300f21000e896d6feaad310&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2025-09-13 07:53:44&lt;/sys_updated_on&gt;&lt;table&gt;sys_script_fix&lt;/table&gt;&lt;use_es_latest&gt;true&lt;/use_es_latest&gt;&lt;/sys_es_latest_script&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>-2020038158</payload_hash>
+        <record_name>Cisco Secure Access Choices Change Req</record_name>
+        <reverted_from/>
+        <source>7b675eb783b7221000e896d6feaad3c1</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 12:24:00</sys_created_on>
+        <sys_id>9be6638183cc321000e896d6feaad320</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>199527b5be30000001</sys_recorded_at>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 12:24:00</sys_updated_on>
+        <type>Fix Script</type>
+        <update_guid>13e6638124cc321094cab15dc75d2d20</update_guid>
+        <update_guid_history>13e6638124cc321094cab15dc75d2d20:-2020038158,446f334ca5c4f2109616dde6b5d14ab5:40719530,1da2fbcc6944f210cbba97172855aefa:987764547,712013008540f210876ad17c5738e73e:-1737645906,4b6f838cda00f210f59ccc52d4cf3519:1854814358,df4c83c4c100f210071b779ddd490c14:-1238121364</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 13:17:54</sys_created_on>
+        <sys_db_object display_value="" name="sys_script_fix">sys_script_fix</sys_db_object>
+        <sys_id>2678625541584044ba6711fbb7e7ba91</sys_id>
+        <sys_metadata>1e8acf808300f21000e896d6feaad368</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Cisco Secure Access Choices Change Req</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_scope_delete display_value="">dc48029113d145e48da0dcb1695ce190</sys_scope_delete>
+        <sys_update_name>sys_script_fix_1e8acf808300f21000e896d6feaad368</sys_update_name>
+        <sys_update_version display_value="sys_script_fix_1e8acf808300f21000e896d6feaad368">9be6638183cc321000e896d6feaad320</sys_update_version>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 13:17:54</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>
