@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_fix">
+    <sys_script_fix action="INSERT_OR_UPDATE">
+        <before>false</before>
+        <description/>
+        <name>cisco secure access UI policy list 1</name>
+        <record_for_rollback>true</record_for_rollback>
+        <script><![CDATA[// Create the UI Policy record
+var policy = new GlideRecord('sys_ui_policy');
+policy.initialize();
+policy.short_description = 'Show Cisco CSA fields';        // Label for the UI Policy
+policy.table = 'change_request';                       // Apply to Change Request table
+policy.active = true;                                  // Activate the policy
+policy.reverse_if_false = true;                        // Revert actions when condition is false
+policy.on_load = true;                                 // Evaluate on form load
+policy.conditions = 'category=CSA Configuration';   // Condition: Category is "Cisco secure access"
+policy.insert();
+ 
+// Create UI Policy Action for u_destination_address
+var action1 = new GlideRecord('sys_ui_policy_action');
+action1.initialize();
+action1.ui_policy = policy.sys_id;            // Associate with the above policy
+action1.field = 'u_destination_address'; // Target field on the form
+action1.visible = 'true';                     // Show the field when condition is met
+action1.mandatory = 'true';                   // Make it mandatory
+action1.disabled = 'false';                   // Not read-only (leave writable)
+action1.insert();
+ 
+// Create UI Policy Action for u_destination_list
+var action2 = new GlideRecord('sys_ui_policy_action');
+action2.initialize();
+action2.ui_policy = policy.sys_id;
+action2.field = 'u_destination_list';
+action2.visible = 'true';
+action2.mandatory = 'true';
+action2.disabled = 'false';
+action2.insert();
+ 
+ ]]></script>
+        <sys_class_name>sys_script_fix</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 16:39:11</sys_created_on>
+        <sys_id>4c21601583c4721000e896d6feaad38c</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>cisco secure access UI policy list 1</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_fix_4c21601583c4721000e896d6feaad38c</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 16:39:11</sys_updated_on>
+        <unloadable>false</unloadable>
+    </sys_script_fix>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>4c21601583c4721000e896d6feaad38c</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-16 16:39:09</sys_created_on>
+        <sys_id>895128d583c4721000e896d6feaad3dd</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-16 16:39:09</sys_updated_on>
+        <table>sys_script_fix</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>
