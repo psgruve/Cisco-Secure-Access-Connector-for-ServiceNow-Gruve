@@ -1,11 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?><database>
     <element db_object_id="6cbabf018380721000e896d6feaad3ca" extends="cmdb_ci" label="CMDB CI Application" max_length="40" name="u_cmdb_ci_application" type="collection">
+        <element label="Tier" max_length="40" name="u_tier" type="string"/>
+        <element label="Technical Owner" max_length="40" name="u_technical_owner" type="string"/>
         <element choice="1" label="Public Or Private" max_length="40" name="u_public_or_private" type="choice">
             <choice>
                 <element inactive_on_update="false" label="Public" sequence="1" value="public"/>
                 <element inactive_on_update="false" label="Private" sequence="2" value="private"/>
             </choice>
         </element>
+        <element label="License Number" max_length="40" name="u_license_number" type="string"/>
+        <element label="DNS Server ID" max_length="40" name="u_dns_server_id" type="integer"/>
+        <element label="License Type" max_length="40" name="u_license_type" type="string"/>
+        <element label="Is Appliance" max_length="40" name="u_is_appliance" type="string"/>
+        <element choice="1" label="Approval_status" max_length="40" name="u_approval_status" type="choice">
+            <choice/>
+        </element>
+        <element label="Hosting Type" max_length="40" name="u_hosting_type" type="string"/>
+        <element choice="1" label="Resource Group" max_length="40" name="u_resource_group" type="choice">
+            <choice/>
+        </element>
         <element label="Resource ID" max_length="40" name="u_resource_id" type="integer"/>
+        <element label="Model" max_length="40" name="u_model" type="string"/>
+        <element label="Application Id" max_length="40" name="u_application_id" type="string"/>
+        <element label="Resource Group IDs" max_length="1000" name="u_resource_group_ids" type="string"/>
+        <element label="Access Types" max_length="1000" name="u_access_types" type="string"/>
+        <element label="Resource Addresses" max_length="1000" name="u_resource_addresses" type="string"/>
+        <element label="Certificate ID" max_length="40" name="u_certificate_id" type="integer"/>
+        <element label="Created" max_length="255" name="u_created" type="string_full_utf8"/>
+        <element label="System ID" max_length="40" name="u_system_id" type="string"/>
     </element>
 </database>
