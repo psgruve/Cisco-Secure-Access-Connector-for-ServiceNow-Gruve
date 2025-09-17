@@ -191,7 +191,7 @@ Cisco_Secure_Access_App_Approval_Processing_Private_Resources.prototype = {
 				}
 			});
 
-			gs.info("[Cisco Secure Access - PR] - CSA Private Resource Approval Processing completed.");
+			gs.info("[Cisco Secure Access - PR] - Cisco Secure Access Private Resource Approval Processing completed.");
 		} catch (ex) {
 			gs.error("[Cisco Secure Access - PR] - Error in processing: " + ex.message);
 		}
@@ -203,14 +203,14 @@ Cisco_Secure_Access_App_Approval_Processing_Private_Resources.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-13 11:24:10</sys_created_on>
         <sys_id>c75cf38483c4f21000e896d6feaad3ac</sys_id>
-        <sys_mod_count>5</sys_mod_count>
+        <sys_mod_count>6</sys_mod_count>
         <sys_name>Cisco Secure Access App Approval Processing Private Resources</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_include_c75cf38483c4f21000e896d6feaad3ac</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-16 18:59:05</sys_updated_on>
+        <sys_updated_on>2025-09-17 05:08:40</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>c75cf38483c4f21000e896d6feaad3ac</id>

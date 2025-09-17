@@ -15,39 +15,39 @@ Cisco_Secure_Access_Poll_Private_Resources.prototype = {
 	},
 
 	run: function () {
-		gs.info("[CSA - PR] STEP 1: Starting PollCiscoSSEAPIPrivateResourcesuserapp.run()");
+		gs.info("[Cisco Secure Access -  PR] STEP 1: Starting PollCiscoSSEAPIPrivateResourcesuserapp.run()");
 		try {
 			// STEP 1: Get Bearer token
-			gs.info("[CSA - PR] STEP 2: Fetching Bearer token...");
+			gs.info("[Cisco Secure Access -  PR] STEP 2: Fetching Bearer token...");
 			var token = new CiscoSecureAccessGetToken().getLatestAccessToken();
 			// var token = "";
-			gs.info("[CSA - PR] STEP 2: Bearer token fetched: " + (token ? "SUCCESS" : "FAILED"));
+			gs.info("[Cisco Secure Access -  PR] STEP 2: Bearer token fetched: " + (token ? "SUCCESS" : "FAILED"));
 
-			// STEP 2: Call Cisco CSA API (Get Private Resources)
-			gs.info("[CSA - PR] STEP 3: Executing REST Message 'Cisco SSE - Get Private Resource', Method 'Default GET'...");
+			// STEP 2: Call Cisco Cisco Secure Access API (Get Private Resources)
+			gs.info("[Cisco Secure Access -  PR] STEP 3: Executing REST Message 'Cisco SSE - Get Private Resource', Method 'Default GET'...");
 			var r = new sn_ws.RESTMessageV2('Cisco Secure Access Private Resources', 'GET Private Resources');
 			r.setRequestHeader("Authorization", "Bearer " + token);
 			r.setRequestHeader("Accept", "application/json");
 			var response = r.execute();
 			var status = response.getStatusCode();
-			gs.info("[CSA - PR] STEP 3: REST response status: " + status);
+			gs.info("[Cisco Secure Access -  PR] STEP 3: REST response status: " + status);
 
 			var responseBody = response.getBody();
-			gs.info("[CSA - PR] STEP 3: Raw Response: " + responseBody);
+			gs.info("[Cisco Secure Access -  PR] STEP 3: Raw Response: " + responseBody);
 
 			if (status !== 200) {
-				gs.error("[CSA - PR] ERROR: REST call failed with status " + status);
+				gs.error("[Cisco Secure Access -  PR] ERROR: REST call failed with status " + status);
 				// throw new Error("REST call failed with status " + status);
 			}
 
 			// STEP 4: Parse response
-			gs.info("[CSA - PR] STEP 4: Parsing response...");
+			gs.info("[Cisco Secure Access -  PR] STEP 4: Parsing response...");
 			var parsed = JSON.parse(responseBody);
 			var csaResources = parsed.items || [];
-			gs.info("[CSA - PR] STEP 4: Total private resources fetched from CSA: " + csaResources.length);
+			gs.info("[Cisco Secure Access -  PR] STEP 4: Total private resources fetched from Cisco Secure Access: " + csaResources.length);
 
 			// STEP 5: Build CMDB resource list
-			gs.info("[CSA - PR] STEP 5: Querying CMDB table...");
+			gs.info("[Cisco Secure Access -  PR] STEP 5: Querying CMDB table...");
 			var cmdbGR = new GlideRecord('u_cmdb_ci_application');
 			cmdbGR.query();
 
@@ -58,10 +58,10 @@ Cisco_Secure_Access_Poll_Private_Resources.prototype = {
 				cmdbResources[resourceId] = true;
 				cmdbCount++;
 			}
-			gs.info("[CSA - PR] STEP 5: Total resources in CMDB: " + cmdbCount);
+			gs.info("[Cisco Secure Access -  PR] STEP 5: Total resources in CMDB: " + cmdbCount);
 
 			// STEP 6: Insert new resources into the new local table
-			gs.info("[CSA - PR] STEP 6: Inserting new resources into Cisco CSA Private Resources table...");
+			gs.info("[Cisco Secure Access -  PR] STEP 6: Inserting new resources into Cisco Cisco Secure Access Private Resources table...");
 			var inserted = [];
 
 			for (var i = 0; i < csaResources.length; i++) {
@@ -77,7 +77,7 @@ Cisco_Secure_Access_Poll_Private_Resources.prototype = {
 					localGR.query();
 
 					if (localGR.hasNext()) {
-						gs.info("[CSA - PR] STEP 6: Resource already exists in local table: " + resourceId);
+						gs.info("[Cisco Secure Access -  PR] STEP 6: Resource already exists in local table: " + resourceId);
 						exists = true;
 					}
 				}
@@ -91,7 +91,7 @@ Cisco_Secure_Access_Poll_Private_Resources.prototype = {
 					gr.u_status = "pending";
 					gr.u_send_alert = "no";
 
-					// --- Map CSA fields to correct ServiceNow columns ---
+					// --- Map Cisco Secure Access fields to correct ServiceNow columns ---
 					gr.u_created_at = res.createdAt;
 					gr.u_modified_at = res.modifiedAt;
 					gr.u_dns_server_id = res.dnsServerId;
@@ -119,23 +119,23 @@ Cisco_Secure_Access_Poll_Private_Resources.prototype = {
 					gr.u_resource_addresses = Array.isArray(res.resourceAddresses) ? JSON.stringify(res.resourceAddresses) : "";
 
 					var sysId = gr.insert();
-					gs.info("[CSA - PR] STEP 6: Inserted resource: " + (res.name || res.resourceId) + " (sys_id: " + sysId + ")");
+					gs.info("[Cisco Secure Access -  PR] STEP 6: Inserted resource: " + (res.name || res.resourceId) + " (sys_id: " + sysId + ")");
 					inserted.push(res.name || res.resourceId);
 				} else {
-					gs.info("[CSA - PR] STEP 6: Resource skipped (already exists): " + resourceId);
+					gs.info("[Cisco Secure Access -  PR] STEP 6: Resource skipped (already exists): " + resourceId);
 				}
 			}
 
 			if (inserted.length > 0) {
-				gs.info("[CSA - PR] STEP 7: Inserted new Cisco CSA Private Resources: " + inserted.join(", "));
+				gs.info("[Cisco Secure Access -  PR] STEP 7: Inserted new Cisco Cisco Secure Access Private Resources: " + inserted.join(", "));
 			} else {
-				gs.info("[CSA - PR] STEP 7: No new private resources to insert.");
+				gs.info("[Cisco Secure Access -  PR] STEP 7: No new private resources to insert.");
 			}
 
-			gs.info("[CSA - PR] STEP 8: PollCiscoSSEAPIPrivateResourcesuserapp.run() completed.");
+			gs.info("[Cisco Secure Access -  PR] STEP 8: PollCiscoSSEAPIPrivateResourcesuserapp.run() completed.");
 
 		} catch (ex) {
-			gs.error('[CSA - PR] ERROR: Failed to import Cisco CSA Private Resources: ' + ex.message);
+			gs.error('[Cisco Secure Access -  PR] ERROR: Failed to import Cisco Cisco Secure Access Private Resources: ' + ex.message);
 		}
 	},
 	
@@ -145,14 +145,14 @@ Cisco_Secure_Access_Poll_Private_Resources.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-13 11:22:05</sys_created_on>
         <sys_id>c6abbb0483c4f21000e896d6feaad362</sys_id>
-        <sys_mod_count>3</sys_mod_count>
+        <sys_mod_count>4</sys_mod_count>
         <sys_name>Cisco Secure Access Poll Private Resources</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_include_c6abbb0483c4f21000e896d6feaad362</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-16 18:00:06</sys_updated_on>
+        <sys_updated_on>2025-09-17 05:14:35</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>c6abbb0483c4f21000e896d6feaad362</id>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>global.Cisco Sceure Access Poll Appliaction List Details</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>Cisco Sceure Access Poll Appliaction List Details</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var Cisco_Sceure_Access_Poll_Appliaction_List_Details = Class.create();
+Cisco_Sceure_Access_Poll_Appliaction_List_Details.prototype = {
+	initialize: function () {
+	},
+
+	fetchAndSyncApplicationLists: function () {
+		try {
+			gs.info("[Cisco Secure AccessAPP-LIST] === Script Started ===");
+
+			// 1. Fetch existing ServiceNow application list records into a map keyed by name
+			var snowRecords = {};
+			var grSnow = new GlideRecord("u_cisco_secure_access_application_list");
+			grSnow.query();
+			while (grSnow.next()) {
+				var name = grSnow.getValue("u_application_list_name");
+				if (name) {
+					snowRecords[name] = {
+						sys_id: grSnow.getUniqueValue(),
+						active_status: grSnow.getValue("u_active_status"),
+						resource_group_for: grSnow.getValue("u_resource_group_for"),
+						application_list_id: grSnow.getValue("u_application_list_id"),
+						is_default: grSnow.getValue("u_is_default"),
+						created_at: grSnow.getValue("u_created_at"),
+						modified_at: grSnow.getValue("u_modified_at")
+					};
+				}
+			}
+			gs.info("[Cisco Secure AccessAPP-LIST] ServiceNow records fetched. Count=" + Object.keys(snowRecords).length);
+
+			// 2. Fetch all Cisco Secure Access application lists from SSE API
+			var token = new CiscoSecureAccessGetToken().getLatestAccessToken();
+			var r = new sn_ws.RESTMessageV2("Cisco Secure Access Application List", "Get Application List");
+			r.setRequestHeader("Authorization", "Bearer " + token);
+			r.setRequestHeader("Accept", "application/json");
+			var response = r.execute();
+			var status = response.getStatusCode();
+			var body = response.getBody();
+
+			if (status !== 200) {
+				gs.error("[Cisco Secure AccessAPP-LIST] Cisco Secure Access API Error: " + status + " - " + body);
+				// return;
+			}
+
+			var parsed = JSON.parse(body);
+			gs.info("[Cisco Secure AccessAPP-LIST] Raw API response: " + body);
+
+			// Use 'results' as the array of application lists
+			var csaItems = parsed.results || [];
+			if (!Array.isArray(csaItems)) {
+				gs.error("[Cisco Secure AccessAPP-LIST] Unexpected Cisco Secure Access API response format.");
+				// return;
+			}
+			gs.info("[Cisco Secure AccessAPP-LIST] Cisco Secure Access records fetched. Count=" + csaItems.length);
+
+			// 3. Update or insert ServiceNow rows that match Cisco Secure Access by name
+			var updatedCount = 0, insertedCount = 0;
+			for (var i = 0; i < csaItems.length; i++) {
+				var item = csaItems[i];
+				var name = item.applicationListName;
+				var gr;
+				if (snowRecords[name]) {
+					// Update existing
+					var existing = snowRecords[name];
+					gr = new GlideRecord("u_cisco_secure_access_application_list");
+					if (gr.get(existing.sys_id)) {
+						var needUpdate = false;
+						if (!existing.application_list_id && item.applicationListId) { gr.setValue("u_application_list_id", item.applicationListId); needUpdate = true; }
+						if (!existing.is_default && item.isDefault !== undefined) { gr.setValue("u_is_default", item.isDefault ? "true" : "false"); needUpdate = true; }
+						if (!existing.created_at && item.createdAt) { gr.setValue("u_created_at", item.createdAt); needUpdate = true; }
+						if (!existing.modified_at && item.modifiedAt) { gr.setValue("u_modified_at", item.modifiedAt); needUpdate = true; }
+						if (needUpdate) {
+							gr.update();
+							updatedCount++;
+							gs.info("[Cisco Secure AccessAPP-LIST] Updated SNOW record by name: " + name + " (List ID: " + item.applicationListId + ")");
+						} else {
+							gs.info("[Cisco Secure AccessAPP-LIST] No missing fields for: " + name);
+						}
+					}
+				}
+			}
+
+			gs.info("[Cisco Secure AccessAPP-LIST] Completed. Records updated=" + updatedCount + ", inserted=" + insertedCount);
+
+		} catch (e) {
+			gs.error("[Cisco Secure AccessAPP-LIST] Script Error: " + e.message);
+		}
+	},
+
+	type: 'Cisco_Sceure_Access_Poll_Appliaction_List_Details'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-17 01:16:39</sys_created_on>
+        <sys_id>97ad4a598384b21000e896d6feaad3a2</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>Cisco Sceure Access Poll Appliaction List Details</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_97ad4a598384b21000e896d6feaad3a2</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-17 05:01:15</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>97ad4a598384b21000e896d6feaad3a2</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-17 01:16:38</sys_created_on>
+        <sys_id>19c756dd83c4b21000e896d6feaad332</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-17 01:16:38</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>
