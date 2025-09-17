@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="em_match_rule">
+    <em_match_rule action="DELETE">
+        <active>true</active>
+        <additional_info_filter>{"conditions":[]}</additional_info_filter>
+        <assignment_group/>
+        <bind>false</bind>
+        <bind_type>1</bind_type>
+        <ci_type>cmdb_ci</ci_type>
+        <close_alert_freq>1</close_alert_freq>
+        <close_alert_int>120</close_alert_int>
+        <close_alert_op/>
+        <close_alert_value/>
+        <create_alert_freq>1</create_alert_freq>
+        <create_alert_int>120</create_alert_int>
+        <create_alert_op/>
+        <create_alert_value/>
+        <description/>
+        <event_class/>
+        <event_data>{"additionalInfoFields":[],"expressions":[],"rawFields":[{"label":"Description","mapping":[],"simpleMode":"","regex":"","name":"description","value":""},{"label":"Node","mapping":[],"simpleMode":"","regex":"","name":"node","value":""},{"label":"Type","mapping":[],"simpleMode":"","regex":"","name":"type","value":""},{"label":"Resource","mapping":[],"simpleMode":"","regex":"","name":"resource","value":""},{"label":"Message key","mapping":[],"simpleMode":"","regex":"","name":"message_key","value":""},{"label":"Severity","mapping":[],"simpleMode":"","regex":"","name":"severity","value":""},{"label":"Metric Name","mapping":[],"simpleMode":"","regex":"","name":"metric_name","value":""},{"label":"Source instance","mapping":[],"simpleMode":"","regex":"","name":"event_class","value":""},{"label":"Source","mapping":[],"simpleMode":"","regex":"","name":"source","value":""},{"label":"Resolution state","mapping":[],"simpleMode":"","regex":"","name":"resolution_state","value":""},{"label":"CI type","mapping":[],"simpleMode":"","regex":"","name":"ci_type","value":""},{"label":"API Key","mapping":[],"simpleMode":"","regex":"","name":"u_api_key","value":""},{"label":"Classification","mapping":[],"simpleMode":"","regex":"","name":"classification","value":""},{"label":"Rule Name","mapping":[],"simpleMode":"","regex":"","name":"u_rule_name","value":""}],"hasChanged":false}</event_data>
+        <filter/>
+        <identification_rules>[]</identification_rules>
+        <ignore_event>false</ignore_event>
+        <metric/>
+        <name>xzcxc</name>
+        <order>100</order>
+        <rule_mapping_counter>0</rule_mapping_counter>
+        <rule_version>jakarta</rule_version>
+        <run_ignore_before_enrich>false</run_ignore_before_enrich>
+        <search_additional_rules>false</search_additional_rules>
+        <simple_filter>{"compound_type":"or","subpredicates":[]}</simple_filter>
+        <sys_class_name>em_match_rule</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-17 07:59:27</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>f1f3b7998304f21000e896d6feaad3eb</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>xzcxc</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>em_match_rule_f1f3b7998304f21000e896d6feaad3eb</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-17 07:59:27</sys_updated_on>
+        <table>em_event</table>
+        <threshold>false</threshold>
+        <threshold_alert_template/>
+        <transform>true</transform>
+    </em_match_rule>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</application>
+        <file_path/>
+        <instance_id>864a7fa41bb6b190c84543f4bd4bcb1a</instance_id>
+        <instance_name>dev225624</instance_name>
+        <name>em_match_rule_f1f3b7998304f21000e896d6feaad3eb</name>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="em_match_rule"><em_match_rule action="INSERT_OR_UPDATE"><active>true</active><additional_info_filter>{"conditions":[]}</additional_info_filter><assignment_group/><bind>false</bind><bind_type>1</bind_type><ci_type>cmdb_ci</ci_type><close_alert_freq>1</close_alert_freq><close_alert_int>120</close_alert_int><close_alert_op/><close_alert_value/><create_alert_freq>1</create_alert_freq><create_alert_int>120</create_alert_int><create_alert_op/><create_alert_value/><description/><event_class/><event_data>{"additionalInfoFields":[],"expressions":[],"rawFields":[{"label":"Description","mapping":[],"simpleMode":"","regex":"","name":"description","value":""},{"label":"Node","mapping":[],"simpleMode":"","regex":"","name":"node","value":""},{"label":"Type","mapping":[],"simpleMode":"","regex":"","name":"type","value":""},{"label":"Resource","mapping":[],"simpleMode":"","regex":"","name":"resource","value":""},{"label":"Message key","mapping":[],"simpleMode":"","regex":"","name":"message_key","value":""},{"label":"Severity","mapping":[],"simpleMode":"","regex":"","name":"severity","value":""},{"label":"Metric Name","mapping":[],"simpleMode":"","regex":"","name":"metric_name","value":""},{"label":"Source instance","mapping":[],"simpleMode":"","regex":"","name":"event_class","value":""},{"label":"Source","mapping":[],"simpleMode":"","regex":"","name":"source","value":""},{"label":"Resolution state","mapping":[],"simpleMode":"","regex":"","name":"resolution_state","value":""},{"label":"CI type","mapping":[],"simpleMode":"","regex":"","name":"ci_type","value":""},{"label":"API Key","mapping":[],"simpleMode":"","regex":"","name":"u_api_key","value":""},{"label":"Classification","mapping":[],"simpleMode":"","regex":"","name":"classification","value":""},{"label":"Rule Name","mapping":[],"simpleMode":"","regex":"","name":"u_rule_name","value":""}],"hasChanged":false}</event_data><filter/><identification_rules>[]</identification_rules><ignore_event>false</ignore_event><metric/><name>xzcxc</name><order>100</order><rule_mapping_counter>0</rule_mapping_counter><rule_version>jakarta</rule_version><run_ignore_before_enrich>false</run_ignore_before_enrich><search_additional_rules>false</search_additional_rules><simple_filter>{"compound_type":"or","subpredicates":[]}</simple_filter><sys_class_name>em_match_rule</sys_class_name><sys_created_by>admin</sys_created_by><sys_created_on>2025-09-17 07:59:27</sys_created_on><sys_domain>global</sys_domain><sys_id>f1f3b7998304f21000e896d6feaad3eb</sys_id><sys_mod_count>0</sys_mod_count><sys_name>xzcxc</sys_name><sys_overrides/><sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package><sys_policy/><sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope><sys_update_name>em_match_rule_f1f3b7998304f21000e896d6feaad3eb</sys_update_name><sys_updated_by>admin</sys_updated_by><sys_updated_on>2025-09-17 07:59:27</sys_updated_on><table>em_event</table><threshold>false</threshold><threshold_alert_template/><transform>true</transform></em_match_rule></record_update>]]></payload>
+        <payload_hash>635367631</payload_hash>
+        <record_name>xzcxc</record_name>
+        <reverted_from/>
+        <source>7b675eb783b7221000e896d6feaad3c1</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-17 07:59:27</sys_created_on>
+        <sys_id>fdf3b7998304f21000e896d6feaad3ed</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>19956af86080000001</sys_recorded_at>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-17 07:59:27</sys_updated_on>
+        <type>Event Rule</type>
+        <update_guid>75f3b799f104f210f62f33bff1178fed</update_guid>
+        <update_guid_history>75f3b799f104f210f62f33bff1178fed:635367631</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete display_value="xzcxc">ff147f998304f21000e896d6feaad390</sys_audit_delete>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-17 08:00:08</sys_created_on>
+        <sys_db_object display_value="" name="em_match_rule">em_match_rule</sys_db_object>
+        <sys_id>14fc5c2f0399485a9b72f7a3b462b1e9</sys_id>
+        <sys_metadata>f1f3b7998304f21000e896d6feaad3eb</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>xzcxc</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_scope_delete display_value="">dc48029113d145e48da0dcb1695ce190</sys_scope_delete>
+        <sys_update_name>em_match_rule_f1f3b7998304f21000e896d6feaad3eb</sys_update_name>
+        <sys_update_version display_value="em_match_rule_f1f3b7998304f21000e896d6feaad3eb">fdf3b7998304f21000e896d6feaad3ed</sys_update_version>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-17 08:00:08</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>
