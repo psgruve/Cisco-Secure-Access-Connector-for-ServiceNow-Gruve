@@ -199,11 +199,11 @@
 				<div class="progress-line" id="progressLine" style="width:20%"></div>
 				<div class="step active" id="stepper1">
 					<span class="circle">1</span>
-					<p>Cisco Seure Access Credentials</p>
+					<p>Cisco Secure Access Credentials</p>
 				</div>
 				<div class="step" id="stepper2">
 					<span class="circle">2</span>
-					<p>Webhook</p>
+					<p>Service now alert Registration</p>
 				</div>
 			</div>
 
@@ -211,7 +211,7 @@
 			<!-- Step 1 -->
 			<div id="step1">
 				<h2>Cisco Seure Access App Credentials</h2>
-				<form onsubmit="submitCSAConfig(); return false;">
+				<form onsubmit="submitCiscoSecureAccessConfig(); return false;">
 					<div class="form-group">
 						<label for="client_key">Client Key</label>
 						<input class="form-control" type="text" id="client_key" name="client_key"
@@ -233,11 +233,11 @@
 				 <div class="instructions">
                 <h3>Instructions</h3>
                 <ol>
-                    <li>Ask your administrator to create a dedicated ServiceNow user account for receiving CSA alerts.
+                    <li>Ask your administrator to create a dedicated ServiceNow user account for receiving Cisco Secure Access alerts.
                     </li>
                     <li>Note the ServiceNow Username and Password for the new account. Enter carefully; incorrect
                         credentials cannot be verified.</li>
-                    <li>Fill in your credentials below and click Submit to register for CSA Event Alerts. A confirmation
+                    <li>Fill in your credentials below and click Submit to register for Cisco Secure Access Event Alerts. A confirmation
                         message will appear upon success.</li>
                 </ol>
             </div>
@@ -282,7 +282,7 @@
 }
  
  
-function submitCSAConfig() {
+function submitCiscoSecureAccessConfig() {
     var clientKey = document.getElementById("client_key").value;
       var clientSecret = document.getElementById("client_secret").value;
  
@@ -323,25 +323,24 @@ function submitCSAConfig() {
                      document.getElementById('username').value = savedUsername;
                  }
         };
-        async function submitForm() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('cnf_password').value;
-            const resultDiv = document.getElementById('resultMsg');
-            localStorage.setItem('savedUsername', username);
-//  Step 1: Fetch Webhook where Events received in ServiceNow
+       async function submitForm() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('cnf_password').value;
+    const resultDiv = document.getElementById('resultMsg');
+    localStorage.setItem('savedUsername', username);
+
+    // Step 1: fetch webhook url (you already do this)
     let apiInfo;
     try {
         apiInfo = await new Promise(function (resolve, reject) {
             var ga = new GlideAjax('CiscoSecureAccessGetWebhookUrl');
-            ga.addParam('sysparm_name', 'getApiInfo'); // Script Include method
-            ga.addParam('sysparm_api_name', 'Cisco Secure Access Event Management'); // API Name
+            ga.addParam('sysparm_name', 'getApiInfo');
+            ga.addParam('sysparm_api_name', 'Cisco Secure Access Event Management');
             ga.getXMLAnswer(function (response) {
                 try {
                     resolve(JSON.parse(response));
-                } catch (e) {
-                    reject(e);
-                }
+                } catch (e) { reject(e); }
             });
         });
     } catch (err) {
@@ -349,87 +348,51 @@ function submitCSAConfig() {
         resultDiv.className = 'error';
         return;
     }
- 
     if (apiInfo.error) {
         resultDiv.innerHTML = apiInfo.error;
         resultDiv.className = 'error';
         return;
     }
- 			const webhook = apiInfo.full_url;
-			alert(webhook);
- 			//  Step 2: Get latest token from table
-            var tokenGR = new GlideRecord("u_cisco_secure_access_token");
-            tokenGR.orderByDesc("sys_created_on");
-            tokenGR.setLimit(1);
-            tokenGR.query();
- 
-        if (!tokenGR.next()) {
-			console.log("No access token found");
-            gs.error("No access token found");
+    const webhook = apiInfo.full_url;
+
+    // Step 2: Validate password in client
+    if (password !== confirmPassword) {
+        resultDiv.innerHTML = "<span class='error'>Passwords do not match!</span>";
+        return;
+    }
+
+    // Step 3: Call server Script Include via GlideAjax to perform the REST calls
+    resultDiv.innerHTML = 'Processing...';
+    var ga2 = new GlideAjax('CiscoSecureAccessIntegrationAjax');
+    ga2.addParam('sysparm_name', 'createIntegration');
+    ga2.addParam('sysparm_username', username);
+    ga2.addParam('sysparm_password', password);
+    ga2.addParam('sysparm_webhook', webhook);
+
+    ga2.getXMLAnswer(function(response) {
+        // response is a JSON string from server
+        try {
+            var res = JSON.parse(response);
+        } catch (e) {
+            resultDiv.innerHTML = "<span class='error'>Invalid server response</span>";
             return;
         }
-   
-        var accessToken = tokenGR.getValue("u_access_token");
-        if (!accessToken) {
-			console.log("No access token found");
-            gs.error("Access token is empty");
-            return;
-        }
-        resultDiv.innerHTML = '';
- 			// Step 3: Validate password
-            if (password !== confirmPassword) {
-                resultDiv.innerHTML = "<span class='error'>Passwords do not match!</span>";
-                return;
-            }
- 			// Step 4: Integration + Credentials
-            try {
-                const integrationPayload = {
-                    type: "webhook.v1",
-                    name: "SNOW Alert",
-                    webhookConfig: { url: webhook }
-                };
- 
-                const integrationResp = await fetch(" https://api.sse.cisco.com/admin/v2/integrations", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + accessToken
-                    },
-                    body: JSON.stringify(integrationPayload)
-                });
- 
-                if (!integrationResp.ok) {
-                    throw new Error("Integration API failed: " + integrationResp.status);
-                }
- 
-                const integrationData = await integrationResp.json();
-                const href = integrationData.href;
-				if (!href) throw new Error("No href found in integration response");
- 
-                const credentialsPayload = {
-                    name: "Add credentials to webhook",
-                    tags: ["string"],
-                    type: "basic-auth",
-                    value: { username, password }
-                };
- 
-                const credResp = await fetch("https://api.sse.cisco.com/admin/v2" + href + "/credentials", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + accessToken
-                    },
-                    body: JSON.stringify(credentialsPayload)
-                });
- 
-                const credData = await credResp.json();
-                resultDiv.innerHTML += "<br/><span class='success'>✅ Credentials added successfully! Webhook: " + webhook + "</span>";
-				window.location.href = window.location.origin
- 
-            } catch (error) {
-                resultDiv.innerHTML += "<br/><span class='error'>Error: " + error + "</span>";
+
+        if (res.success) {
+            resultDiv.innerHTML = "<span class='success'>✅ " + res.message + "</span>";
+            resultDiv.innerHTML += "<div>Webhook: " + res.webhook + "</div>";
+            // optionally show raw responses (trimmed)
+            // resultDiv.innerHTML += "<pre>" + JSON.stringify(res.integrationResponse, null, 2) + "</pre>";
+            // redirect if needed
+            window.location.href = window.location.origin;
+        } else {
+            resultDiv.innerHTML = "<span class='error'>Error: " + res.message + "</span>";
+            if (res.body) {
+                resultDiv.innerHTML += "<pre>" + res.body + "</pre>";
             }
         }
+    });
+}
 		</script>
 	</body>
 
@@ -441,14 +404,14 @@ function submitCSAConfig() {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-13 06:17:02</sys_created_on>
         <sys_id>d0b5368c830cb21000e896d6feaad37a</sys_id>
-        <sys_mod_count>4</sys_mod_count>
+        <sys_mod_count>6</sys_mod_count>
         <sys_name>Cisco Secure Access Creditial And Profile Management</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_ui_page_d0b5368c830cb21000e896d6feaad37a</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-16 13:27:45</sys_updated_on>
+        <sys_updated_on>2025-09-17 12:58:58</sys_updated_on>
     </sys_ui_page>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>d0b5368c830cb21000e896d6feaad37a</id>

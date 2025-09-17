@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_fix">
+    <sys_script_fix action="INSERT_OR_UPDATE">
+        <before>false</before>
+        <description>adding new choices</description>
+        <name>cisco secure access add choice</name>
+        <record_for_rollback>true</record_for_rollback>
+        <script><![CDATA[(function() {
+
+    var tableName = "change_request";  
+
+    var fieldName = "type";            // "Change Type" field
+
+    var newValue = "u_my_change";      // internal value (must be unique)
+
+    var newLabel = "My Change Type";   // label shown on the form
+
+    var order = 400;                   // sequence order
+ 
+    // Check if choice already exists
+
+    var gr = new GlideRecord("sys_choice");
+
+    gr.addQuery("name", tableName);
+
+    gr.addQuery("element", fieldName);
+
+    gr.addQuery("value", newValue);
+
+    gr.query();
+
+    if (gr.next()) {
+
+        gs.print("Change Type already exists: " + newValue);
+
+        return;
+
+    }
+ 
+    // Create new choice
+
+    var choice = new GlideRecord("sys_choice");
+
+    choice.initialize();
+
+    choice.name = tableName;
+
+    choice.element = fieldName;
+
+    choice.value = newValue;
+
+    choice.label = newLabel;
+
+    choice.sequence = order;
+
+    choice.language = "en";
+
+    choice.insert();
+ 
+    gs.print("New Change Type created: " + newLabel + " (" + newValue + ")");
+
+})();
+
+ ]]></script>
+        <sys_class_name>sys_script_fix</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-17 12:59:20</sys_created_on>
+        <sys_id>08787c298304321000e896d6feaad325</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>cisco secure access add choice</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_fix_08787c298304321000e896d6feaad325</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-17 12:59:20</sys_updated_on>
+        <unloadable>false</unloadable>
+    </sys_script_fix>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>08787c298304321000e896d6feaad325</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-17 12:59:19</sys_created_on>
+        <sys_id>ae98f0698304321000e896d6feaad3f2</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-17 12:59:19</sys_updated_on>
+        <table>sys_script_fix</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

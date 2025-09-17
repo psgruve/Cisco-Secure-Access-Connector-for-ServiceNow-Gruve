@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>global.CiscoSecureAccessIntegrationAjax</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>CiscoSecureAccessIntegrationAjax</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var CiscoSecureAccessIntegrationAjax = Class.create();
+CiscoSecureAccessIntegrationAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+
+    createIntegration: function() {
+        try {
+            // params from client
+            var username = this.getParameter('sysparm_username') || '';
+            var password = this.getParameter('sysparm_password') || '';
+            var webhook = this.getParameter('sysparm_webhook') || '';
+
+            if (!username || !password || !webhook) {
+                return JSON.stringify({
+                    success: false,
+                    message: 'Missing parameters. username, password and webhook are required.'
+                });
+            }
+
+            // 1) Get latest access token from table u_cisco_secure_access_token
+            var tokenGR = new GlideRecord('u_cisco_secure_access_token');
+            tokenGR.orderByDesc('sys_created_on');
+            tokenGR.setLimit(1);
+            tokenGR.query();
+            if (!tokenGR.next()) {
+                return JSON.stringify({
+                    success: false,
+                    message: 'No access token record found in u_cisco_secure_access_token.'
+                });
+            }
+            var accessToken = tokenGR.getValue('u_access_token');
+            if (!accessToken) {
+                return JSON.stringify({
+                    success: false,
+                    message: 'Access token is empty.'
+                });
+            }
+
+            // 2) Call Cisco integrations API to create integration
+            var integrationPayload = {
+                type: "webhook.v1",
+                name: "SNOW Alert",
+                webhookConfig: { url: webhook }
+            };
+
+            var rm = new sn_ws.RESTMessageV2();
+            rm.setHttpMethod('POST');
+            rm.setEndpoint('https://api.sse.cisco.com/admin/v2/integrations');
+            rm.setRequestHeader('Content-Type', 'application/json');
+            rm.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            rm.setRequestBody(JSON.stringify(integrationPayload));
+
+            var response = rm.execute();
+            var status = response.getStatusCode();
+            var body = response.getBody();
+            // attempt to parse the response
+            var parsed;
+            try { parsed = JSON.parse(body); } catch (e) { parsed = null; }
+
+            if (status < 200 || status >= 300) {
+                return JSON.stringify({
+                    success: false,
+                    message: 'Integration API failed with status ' + status,
+                    status: status,
+                    body: body
+                });
+            }
+
+            // extract href from integration response
+            var href = parsed && parsed.href ? parsed.href : null;
+            if (!href) {
+                return JSON.stringify({
+                    success: false,
+                    message: 'No href returned from integration API.',
+                    body: body
+                });
+            }
+
+            // 3) Call credentials endpoint
+            // Ensure href doesn't duplicate base path. If href is absolute, use it, otherwise prefix with base.
+            var credentialsEndpoint = href.indexOf('http') === 0 ? href + '/credentials' : 'https://api.sse.cisco.com/admin/v2' + href + '/credentials';
+
+            var credentialsPayload = {
+                name: "Add credentials to webhook",
+                tags: ["string"],
+                type: "basic-auth",
+                value: { username: username, password: password }
+            };
+
+            var rm2 = new sn_ws.RESTMessageV2();
+            rm2.setHttpMethod('POST');
+            rm2.setEndpoint(credentialsEndpoint);
+            rm2.setRequestHeader('Content-Type', 'application/json');
+            rm2.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            rm2.setRequestBody(JSON.stringify(credentialsPayload));
+
+            var resp2 = rm2.execute();
+            var status2 = resp2.getStatusCode();
+            var body2 = resp2.getBody();
+            var parsed2;
+            try { parsed2 = JSON.parse(body2); } catch (e) { parsed2 = null; }
+
+            if (status2 < 200 || status2 >= 300) {
+                return JSON.stringify({
+                    success: false,
+                    message: 'Credentials API failed with status ' + status2,
+                    status: status2,
+                    body: body2
+                });
+            }
+
+            // Successful result
+            return JSON.stringify({
+                success: true,
+                message: 'Credentials added successfully',
+                integrationResponse: parsed || body,
+                credentialsResponse: parsed2 || body2,
+                webhook: webhook
+            });
+
+        } catch (ex) {
+            gs.error('CiscoIntegrationAjax.createIntegration error: ' + ex.message);
+            return JSON.stringify({
+                success: false,
+                message: 'Server error: ' + ex.message
+            });
+        }
+    }
+
+});
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-17 12:56:25</sys_created_on>
+        <sys_id>d597f0a58304321000e896d6feaad3b2</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>CiscoSecureAccessIntegrationAjax</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_d597f0a58304321000e896d6feaad3b2</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-17 12:56:25</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>d597f0a58304321000e896d6feaad3b2</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-17 12:56:25</sys_created_on>
+        <sys_id>33e7bca58304321000e896d6feaad3d2</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-17 12:56:25</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>
