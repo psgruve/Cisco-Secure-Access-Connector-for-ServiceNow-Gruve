@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
     <sys_script_include action="INSERT_OR_UPDATE">
-        <access>package_private</access>
+        <access>public</access>
         <active>true</active>
-        <api_name>global.Cisco Secure Access Private Resource Groups</api_name>
+        <api_name>global.Cisco_Secure_Access_Private_Resource_Groups</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
         <description/>
         <mobile_callable>false</mobile_callable>
-        <name>Cisco Secure Access Private Resource Groups</name>
+        <name>Cisco_Secure_Access_Private_Resource_Groups</name>
         <sandbox_callable>false</sandbox_callable>
         <script><![CDATA[var Cisco_Secure_Access_Private_Resource_Groups = Class.create();
 Cisco_Secure_Access_Private_Resource_Groups.prototype = {
@@ -139,14 +139,14 @@ Cisco_Secure_Access_Private_Resource_Groups.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-13 11:23:29</sys_created_on>
         <sys_id>2d2cb78083c4f21000e896d6feaad331</sys_id>
-        <sys_mod_count>4</sys_mod_count>
-        <sys_name>Cisco Secure Access Private Resource Groups</sys_name>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_name>Cisco_Secure_Access_Private_Resource_Groups</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_include_2d2cb78083c4f21000e896d6feaad331</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-17 05:11:16</sys_updated_on>
+        <sys_updated_on>2025-09-17 13:08:00</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>2d2cb78083c4f21000e896d6feaad331</id>

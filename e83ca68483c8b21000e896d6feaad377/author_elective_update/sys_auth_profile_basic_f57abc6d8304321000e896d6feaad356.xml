@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_auth_profile_basic">
+    <sys_auth_profile_basic action="DELETE">
+        <name>Cisco Secure Access Auth Profile</name>
+        <password>41489d53a8664f65beac23e561850cd9</password>
+        <sys_class_name>sys_auth_profile_basic</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-17 13:07:28</sys_created_on>
+        <sys_id>f57abc6d8304321000e896d6feaad356</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Cisco Secure Access Auth Profile</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_auth_profile_basic_f57abc6d8304321000e896d6feaad356</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-17 13:07:28</sys_updated_on>
+        <username>398950b9edc64f7dadefa49caa840bf2</username>
+    </sys_auth_profile_basic>
+<sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</application>
+        <file_path/>
+        <instance_id>864a7fa41bb6b190c84543f4bd4bcb1a</instance_id>
+        <instance_name>dev225624</instance_name>
+        <name>sys_auth_profile_basic_f57abc6d8304321000e896d6feaad356</name>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_auth_profile_basic">
+    <sys_auth_profile_basic action="INSERT_OR_UPDATE">
+        <name>Cisco Secure Access Auth Profile</name>
+        <password>41489d53a8664f65beac23e561850cd9</password>
+        <sys_class_name>sys_auth_profile_basic</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-17 13:07:28</sys_created_on>
+        <sys_id>f57abc6d8304321000e896d6feaad356</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Cisco Secure Access Auth Profile</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_auth_profile_basic_f57abc6d8304321000e896d6feaad356</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-17 13:07:28</sys_updated_on>
+        <username>398950b9edc64f7dadefa49caa840bf2</username>
+    </sys_auth_profile_basic>
+</record_update>]]></payload>
+        <payload_hash>-1659689456</payload_hash>
+        <record_name>Cisco Secure Access Auth Profile</record_name>
+        <reverted_from/>
+        <source>45f72cb98304b21000e896d6feaad324</source>
+        <source_table>sys_upgrade_history</source_table>
+        <state>previous</state>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-18 06:25:15</sys_created_on>
+        <sys_id>a7f7acb98304b21000e896d6feaad374</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>1995b7fa1340000001</sys_recorded_at>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-18 06:25:15</sys_updated_on>
+        <type>Basic Auth Configuration</type>
+        <update_guid>63f7acb98e04b21079dc871da6378274</update_guid>
+        <update_guid_history>63f7acb98e04b21079dc871da6378274:0,11ef0035fb40b210279e303fb9906f5b:1002173158,317abc6d35043210df968fb659bd4c58:1630677106</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-18 06:52:18</sys_created_on>
+        <sys_db_object display_value="" name="sys_auth_profile_basic">sys_auth_profile_basic</sys_db_object>
+        <sys_id>9d6d3271700c42c8bb13a4601e3aa344</sys_id>
+        <sys_metadata>f57abc6d8304321000e896d6feaad356</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Cisco Secure Access Auth Profile</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_scope_delete display_value="">dc48029113d145e48da0dcb1695ce190</sys_scope_delete>
+        <sys_update_name>sys_auth_profile_basic_f57abc6d8304321000e896d6feaad356</sys_update_name>
+        <sys_update_version display_value="sys_auth_profile_basic_f57abc6d8304321000e896d6feaad356">a7f7acb98304b21000e896d6feaad374</sys_update_version>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-18 06:52:18</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

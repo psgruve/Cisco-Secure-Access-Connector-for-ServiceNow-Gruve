@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>global.CiscoSecureAccessSyncPrivateResources</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>CiscoSecureAccessSyncPrivateResources</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var CiscoSecureAccessSyncPrivateResources = Class.create();
+CiscoSecureAccessSyncPrivateResources.prototype = {
+	initialize: function () {
+	},
+
+	syncApps: function () {
+		gs.info("[CSA Sync Private Apps] Starting syncApps...");
+
+		try {
+			// === Step 1: Get Access Token ===
+			var token = new CiscoSecureAccessGetToken().getLatestAccessToken();
+			if (!token) {
+				gs.error("Failed to get token");
+				return;
+			}
+
+			// === Step 2: Call Cisco Secure Access API ===
+			var rest = new sn_ws.RESTMessageV2('Cisco Secure Access Private Resources', 'GET Private Resources');
+			rest.setRequestHeader("Authorization", "Bearer " + token);
+			rest.setRequestHeader("Accept", "application/json");
+
+			var response = rest.execute();
+			var status = response.getStatusCode();
+
+			if (status !== 200) {
+				gs.error("REST call failed with status: " + status);
+				gs.error("Response body: " + response.getBody());
+				return;
+			}
+
+			var body = response.getBody();
+			gs.info("Raw API Response: " + body);
+
+			var parsed = JSON.parse(body);
+			var privateApps = parsed.items || [];
+
+			gs.info("Fetched " + privateApps.length + " private apps.");
+
+			// === Step 3: Sync to CMDB ===
+			privateApps.forEach(function (app, index) {
+				gs.info("Processing App[" + index + "]: " + JSON.stringify(app));
+
+				var gr = new GlideRecord('u_cmdb_ci_application');
+				gr.addQuery('name', app.name);
+				gr.query();
+
+				if (gr.next()) {
+					var updated = false;
+
+					if ((!gr.short_description || gr.short_description.trim() === '') && app.description) {
+						gr.short_description = app.description;
+						updated = true;
+					}
+
+					if ((!gr.u_application_id || gr.u_application_id.trim() === '') && app.resourceId) {
+						gr.u_application_id = app.resourceId;
+						updated = true;
+					}
+
+					if ((!gr.u_created || gr.u_created.trim() === '') && app.createdAt) {
+						gr.u_created = app.createdAt;
+						updated = true;
+					}
+
+					if (gr.isValidField('u_modified') && (!gr.u_modified || gr.u_modified.trim() === '') && app.modifiedAt) {
+						gr.u_modified = app.modifiedAt;
+						updated = true;
+					}
+
+					if (gr.isValidField('u_access_types') && (!gr.u_access_types || gr.u_access_types.trim() === '') && app.accessTypes && app.accessTypes.length > 0) {
+						var accessTypesStr = app.accessTypes.map(function (at) { return at.type; }).join(', ');
+						gr.u_access_types = accessTypesStr;
+						updated = true;
+					}
+
+					if (gr.isValidField('u_manufacturer') && (!gr.u_manufacturer || gr.u_manufacturer.trim() === '') && app.manufacturer) {
+						gr.u_manufacturer = app.manufacturer;
+						updated = true;
+					}
+
+					if (gr.isValidField('u_location') && (!gr.u_location || gr.u_location.trim() === '') && app.location) {
+						gr.u_location = app.location;
+						updated = true;
+					}
+
+					if (gr.isValidField('u_approval_status') && (!gr.u_approval_status || gr.u_approval_status.trim() === '') && app.approvalStatus) {
+						gr.u_approval_status = app.approvalStatus;
+						updated = true;
+					}
+
+					if (gr.isValidField('u_maintenance_schedule') && (!gr.u_maintenance_schedule || gr.u_maintenance_schedule.trim() === '') && app.maintenanceSchedule) {
+						gr.u_maintenance_schedule = app.maintenanceSchedule;
+						updated = true;
+					}
+
+					if (gr.isValidField('u_class') && (!gr.u_class || gr.u_class.trim() === '') && app["class"]) {
+						gr.u_class = app["class"];
+						updated = true;
+					}
+
+					if (updated) {
+						gr.update();
+						gs.info('Updated CMDB app record for: ' + app.name);
+					} else {
+						gs.info('No updates required for CMDB app: ' + app.name);
+					}
+
+				} else {
+					// Optionally insert new record if not found
+					gs.info("App not found in CMDB, skipping: " + app.name);
+				}
+			});
+
+		} catch (ex) {
+			gs.error("Exception during CSA sync: " + ex.message);
+		}
+
+	},
+
+	type: 'CiscoSecureAccessSyncPrivateResources'
+};
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-17 14:04:15</sys_created_on>
+        <sys_id>163601298384321000e896d6feaad3bf</sys_id>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>CiscoSecureAccessSyncPrivateResources</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_163601298384321000e896d6feaad3bf</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-18 06:59:47</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>163601298384321000e896d6feaad3bf</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-17 14:04:14</sys_created_on>
+        <sys_id>1d7741e98384321000e896d6feaad3fb</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-17 14:04:14</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

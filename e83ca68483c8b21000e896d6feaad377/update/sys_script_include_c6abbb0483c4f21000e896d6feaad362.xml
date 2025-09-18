@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
     <sys_script_include action="INSERT_OR_UPDATE">
-        <access>package_private</access>
+        <access>public</access>
         <active>true</active>
-        <api_name>global.Cisco Secure Access Poll Private Resources</api_name>
+        <api_name>global.Cisco_Secure_Access_Poll_Private_Resources</api_name>
         <caller_access/>
         <client_callable>false</client_callable>
         <description>Scrit includes for Fetching Cisco Secure Access Private Resources</description>
         <mobile_callable>false</mobile_callable>
-        <name>Cisco Secure Access Poll Private Resources</name>
+        <name>Cisco_Secure_Access_Poll_Private_Resources</name>
         <sandbox_callable>false</sandbox_callable>
         <script><![CDATA[var Cisco_Secure_Access_Poll_Private_Resources = Class.create();
 Cisco_Secure_Access_Poll_Private_Resources.prototype = {
@@ -17,7 +17,7 @@ Cisco_Secure_Access_Poll_Private_Resources.prototype = {
 	run: function () {
 		gs.info("[Cisco Secure Access -  PR] STEP 1: Starting PollCiscoSSEAPIPrivateResourcesuserapp.run()");
 		try {
-			// STEP 1: Get Bearer token
+			// STEP 1: Get Bearer token From table
 			gs.info("[Cisco Secure Access -  PR] STEP 2: Fetching Bearer token...");
 			var token = new CiscoSecureAccessGetToken().getLatestAccessToken();
 			// var token = "";
@@ -145,14 +145,14 @@ Cisco_Secure_Access_Poll_Private_Resources.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-13 11:22:05</sys_created_on>
         <sys_id>c6abbb0483c4f21000e896d6feaad362</sys_id>
-        <sys_mod_count>4</sys_mod_count>
-        <sys_name>Cisco Secure Access Poll Private Resources</sys_name>
+        <sys_mod_count>6</sys_mod_count>
+        <sys_name>Cisco_Secure_Access_Poll_Private_Resources</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_include_c6abbb0483c4f21000e896d6feaad362</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-17 05:14:35</sys_updated_on>
+        <sys_updated_on>2025-09-17 13:07:41</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>c6abbb0483c4f21000e896d6feaad362</id>
