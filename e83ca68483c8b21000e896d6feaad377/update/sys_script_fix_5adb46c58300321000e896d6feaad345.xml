@@ -70,6 +70,44 @@
 var condition = "severity=3^ORseverity=4^ORseverity=0^ORseverity=5";
 createOrUpdateEventRule("Cisco Secure Access Event Management Rule", condition);
 
+// 3. Create or update custom fields on em_alert
+
+function createOrUpdateFieldAlert(tableName, columnName, label, type, length) {
+    var dict = new GlideRecord('sys_dictionary');
+    dict.addQuery('name', tableName);
+    dict.addQuery('element', columnName);
+    dict.query();
+
+    if (dict.next()) {
+        var updated = false;
+        if (dict.max_length != length) {
+            dict.max_length = length;
+            updated = true;
+        }
+        if (updated) {
+            dict.update();
+            gs.print("]]>🔄<![CDATA[ Field " + columnName + " updated in " + tableName);
+        } else {
+            gs.print("⚠️ Field " + columnName + " already exists in " + tableName);
+        }
+    } else {
+        var newDict = new GlideRecord('sys_dictionary');
+        newDict.initialize();
+        newDict.name = tableName;
+        newDict.element = columnName;
+        newDict.column_label = label;
+        newDict.internal_type = type;
+        newDict.max_length = length;
+        newDict.mandatory = false;
+        newDict.active = true;
+        newDict.insert();
+        gs.print("✅ Field " + columnName + " created in " + tableName);
+    }
+}
+
+// Example fields for em_alert
+createOrUpdateFieldAlert("em_alert", "u_api_key", "API Key", "string", 100);
+createOrUpdateFieldAlert("em_alert", "u_rule_name", "Rule Name", "string", 2000);
 gs.print("]]>🎯<![CDATA[ Global setup script complete.");
 
 
@@ -78,14 +116,14 @@ gs.print("]]>🎯<![CDATA[ Global setup script complete.");
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-16 05:57:40</sys_created_on>
         <sys_id>5adb46c58300321000e896d6feaad345</sys_id>
-        <sys_mod_count>2</sys_mod_count>
+        <sys_mod_count>3</sys_mod_count>
         <sys_name>Cisco Secure Access Event Changes</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_fix_5adb46c58300321000e896d6feaad345</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-16 08:01:55</sys_updated_on>
+        <sys_updated_on>2025-09-18 06:17:21</sys_updated_on>
         <unloadable>false</unloadable>
     </sys_script_fix>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
