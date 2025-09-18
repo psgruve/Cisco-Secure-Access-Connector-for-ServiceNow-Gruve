@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="email_client=true,hasWorkflow=true,live_feed=true" audit="true" db_object_id="b587f0e899a1221008ddd351c8920a04" extends="task" label="Change Request" max_length="40" name="change_request" text_index="true" type="collection">
+        <element label="Destination List" max_length="32" name="u_destination_list" reference="u_cisco_secure_access_destination_list" type="reference"/>
+        <element label="Destination Address" max_length="255" name="u_destination_address" type="string"/>
+    </element>
+</database>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_fix">
+    <sys_script_fix action="INSERT_OR_UPDATE">
+        <before>false</before>
+        <description/>
+        <name>Add fields in change request</name>
+        <record_for_rollback>true</record_for_rollback>
+        <script><![CDATA[(function executeFixScript() {
+    var tableName = "change_request";
+    
+    
+    var fieldText = new GlideRecord("sys_dictionary");
+    fieldText.addQuery("name", tableName);
+    fieldText.addQuery("element", "u_destination_address");
+    fieldText.query();
+    if (!fieldText.next()) {
+        var newField = new GlideRecord("sys_dictionary");
+        newField.initialize();
+        newField.name = tableName;
+        newField.element = "u_destination_address";
+        newField.internal_type = "string";
+        newField.column_label = "Destination Address";
+        newField.max_length = 255;
+        newField.mandatory = false;
+        newField.insert();
+        gs.log("Fix Script: Created text field u_destination_address");
+    } else {
+        gs.log("Fix Script: Field u_destination_address already exists");
+    }
+ 
+
+    var fieldRef = new GlideRecord("sys_dictionary");
+    fieldRef.addQuery("name", tableName);
+    fieldRef.addQuery("element", "u_destination_list");
+    fieldRef.query();
+    if (!fieldRef.next()) {
+        var newRef = new GlideRecord("sys_dictionary");
+        newRef.initialize();
+        newRef.name = tableName;
+        newRef.element = "u_destination_list";
+        newRef.internal_type = "reference";
+        newRef.reference = "u_cisco_secure_access_destination_list";
+        newRef.column_label = "Destination List";
+        newRef.mandatory = false;
+        newRef.insert();
+        gs.log("Fix Script: Created reference field u_destination_list");
+    } else {
+        gs.log("Fix Script: Field u_destination_list already exists");
+    }
+ 
+})();
+ 
+ ]]></script>
+        <sys_class_name>sys_script_fix</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-18 07:37:43</sys_created_on>
+        <sys_id>6c47bcbd8384b21000e896d6feaad36c</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Add fields in change request</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_fix_6c47bcbd8384b21000e896d6feaad36c</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-18 07:37:43</sys_updated_on>
+        <unloadable>false</unloadable>
+    </sys_script_fix>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>6c47bcbd8384b21000e896d6feaad36c</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-18 07:37:42</sys_created_on>
+        <sys_id>cd98fc3183c4b21000e896d6feaad364</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-18 07:37:42</sys_updated_on>
+        <table>sys_script_fix</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>
