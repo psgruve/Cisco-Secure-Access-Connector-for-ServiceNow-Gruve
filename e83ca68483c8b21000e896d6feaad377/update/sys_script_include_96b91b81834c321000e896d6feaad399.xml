@@ -14,32 +14,6 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 	initialize: function () {
 	},
 
-	// --- Protocol Mapper ---
-	mapProtocol: function (snowValue, accessType) {
-		var protocolMap = {
-			"TCP-SSH": "SSH",
-			"ANY-TCP-UDP": "Any",
-			"TCP-RDP": "RDP-TCP",
-			"TCP-HTTP-HTTPS": "HTTP/HTTPS",
-			"ANY-TCP": "TCP",
-			"ANY-UDP": "UDP"
-		};
-
-		var mapped = protocolMap[snowValue];
-		if (!mapped) {
-			gs.error("[Cisco Secure Access -SI] Invalid Protocol mapping: " + snowValue);
-			throw new Error("Invalid Protocol selected. Must be one of: TCP, UDP, HTTP/HTTPS, Any, SSH, RDP-TCP");
-		}
-
-		// Enforce browser-only protocols
-		if (accessType === "browser" && !["HTTP/HTTPS", "SSH", "RDP-TCP"].includes(mapped)) {
-			gs.error("[Cisco Secure Access -SI] Browser access only supports HTTP/HTTPS, SSH, or RDP-TCP");
-			throw new Error("Browser access must use HTTP/HTTPS, SSH, or RDP-TCP");
-		}
-
-		return mapped;
-	},
-
 	createPrivateResource: function (input) {
 		var result = {
 			status: "error",
@@ -60,7 +34,7 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 			var reachableAddr = input.remotelyReachableAccess || input.internallyAddress || "";
 
 
-			// Mandatory fields check
+			// Mandatory fields checks //
 			var missingFields = [];
 			if (!name) missingFields.push("privateResourceName");
 			if (!ipAddr) missingFields.push("internallyAddress");
@@ -73,7 +47,7 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 				return result;
 			}
 
-			// --- Step 2: Fetch all Allow and Block Resource Groups ---
+			// --- Step 2: Fetch all Allow and Block Resource Groups --- //
 			var allowGroups = [];
 			var blockGroups = [];
 
@@ -133,9 +107,27 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 				});
 			}
 
+			if (accessTypes.some(function(a){return a.type==="browser";})) {
+				var allowedBrowserProtocols = ["HTTP/HTTPS", "SSH", "RDP-TCP"];
+				// Auto-map TCP to HTTP/HTTPS for browser-based access if address is IPv4/IPv6
+				if (proto === "TCP") {
+					if (isIPv4(ipAddr) || isIPv6(ipAddr)) {
+						proto = "HTTP/HTTPS";
+					} else if (isFQDN(ipAddr) || isWildcardFQDN(ipAddr)) {
+						proto = "RDP-TCP"; // or "SSH" if that's your preferred default
+					}
+				}
+				if (allowedBrowserProtocols.indexOf(proto) === -1) {
+					gs.error("[Cisco Secure Access -SI] ERROR: For browser-based access, protocol must be one of: " + allowedBrowserProtocols.join(", "));
+					result.status = "error";
+					result.message = "For browser-based access, protocol must be one of: " + allowedBrowserProtocols.join(", ");
+					return result;
+				}
+			}
 
-			// --- Step 4: Resource Addresses (with protocol mapping) ---
-			var mappedProtocol = this.mapProtocol(proto);
+
+			// --- Step 4: Resource Addresses  ---
+			var mappedProtocol = proto;
 
 			var resourceAddresses = [{
 				destinationAddr: [ipAddr],
@@ -183,18 +175,29 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 
 			// --- Step 7: Insert into CMDB ---
 			var appGR = new GlideRecord('u_cmdb_ci_application');
-			appGR.initialize();
-			appGR.name = name;
-			appGR.short_description = desc;
-			appGR.ip_address = ipAddr;
-			appGR.resource_addresses = JSON.stringify(resourceAddresses);
-			appGR.access_types = JSON.stringify(accessTypes);
-			appGR.resource_group = rgType;
-			appGR.resource_group_ids = resourceGroupIds.join(",");
-			appGR.status = "Created";
-			appGR.insert();
+			appGR.addQuery('name', name);
+			appGR.query();
 
-			gs.info("[Cisco Secure Access -SI] CMDB entry created for {0} with RG {1}", name, rgType);
+			var appSysId = null;
+			if (appGR.next()) {
+				// Record exists, skip insert and save sys_id for update later
+				appSysId = appGR.sys_id + "";
+				gs.info("[Cisco Secure Access -SI] CMDB entry already exists for " + name + ", sys_id: " + appSysId);
+			} else {
+				// Insert new record as before
+				appGR.initialize();
+				appGR.name = name;
+				appGR.short_description = desc;
+				appGR.ip_address = ipAddr;
+				appGR.resource_addresses = JSON.stringify(resourceAddresses);
+				appGR.access_types = JSON.stringify(accessTypes);
+				appGR.resource_group = rgType;
+				appGR.resource_group_ids = resourceGroupIds.join(",");
+				appGR.status = "Created";
+				appGR.u_public_or_private = "private";
+				appSysId = appGR.insert();
+				gs.info("[Cisco Secure Access -SI] CMDB entry created for {0} with RG {1}", name, rgType);
+			}
 
 			// --- Step 8: Call Cisco Secure Access  REST API (Insert) ---
 			try {
@@ -244,8 +247,17 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 				if (statusCode == 200 || statusCode == 201) {
 					result.status = "success";
 					result.message = "Cisco Secure Access  Private Resource created successfully";
-					result.response.id = parsed.id || "";
+					result.response.id = parsed.resourceId ||"";
 					result.response.name = parsed.name || name;
+
+					// --- Update CMDB record with resource ID from API ---
+					if ((parsed.resourceId || parsed.id) && appSysId) {
+						var updateGR = new GlideRecord('u_cmdb_ci_application');
+						if (updateGR.get(appSysId)) {
+							updateGR.u_resource_id = parsed.resourceId || parsed.id;
+							updateGR.update();
+						}
+					}
 				} else {
 					result.status = "error";
 					result.message = parsed.error || ("Cisco Secure Access  API failed with status " + statusCode);
@@ -267,19 +279,32 @@ CiscoSecureAccessCreatePrivateResource.prototype = {
 	},
 
 	type: 'CiscoSecureAccessCreatePrivateResource'
-};]]></script>
+};
+
+function isIPv4(addr) {
+    return /^(\d{1,3}\.){3}\d{1,3}$/.test(addr);
+}
+function isIPv6(addr) {
+    return /^([a-fA-F0-9:]+:+)+[a-fA-F0-9]+$/.test(addr);
+}
+function isFQDN(addr) {
+    return /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/.test(addr);
+}
+function isWildcardFQDN(addr) {
+    return /^\*\.[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/.test(addr);
+}]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-16 11:27:00</sys_created_on>
         <sys_id>96b91b81834c321000e896d6feaad399</sys_id>
-        <sys_mod_count>7</sys_mod_count>
+        <sys_mod_count>21</sys_mod_count>
         <sys_name>CiscoSecureAccessCreatePrivateResource</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_include_96b91b81834c321000e896d6feaad399</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-17 13:08:37</sys_updated_on>
+        <sys_updated_on>2025-09-19 12:54:09</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>96b91b81834c321000e896d6feaad399</id>

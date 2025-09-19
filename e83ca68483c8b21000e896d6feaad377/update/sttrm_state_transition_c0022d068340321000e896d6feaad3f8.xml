@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sttrm_state_transition">
+    <sttrm_state_transition action="INSERT_OR_UPDATE">
+        <automatic>false</automatic>
+        <from_state display_value="New">bbed998a8300321000e896d6feaad32f</from_state>
+        <name>New to Assess</name>
+        <sys_class_name>sttrm_state_transition</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-19 05:17:19</sys_created_on>
+        <sys_id>c0022d068340321000e896d6feaad3f8</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>New to Assess</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sttrm_state_transition_c0022d068340321000e896d6feaad3f8</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-19 05:17:19</sys_updated_on>
+        <to_state display_value="Assess">0e2e51ca8300321000e896d6feaad3c9</to_state>
+    </sttrm_state_transition>
+    <sys_translated_text action="delete_multiple" query="documentkey=c0022d068340321000e896d6feaad3f8"/>
+</record_update>

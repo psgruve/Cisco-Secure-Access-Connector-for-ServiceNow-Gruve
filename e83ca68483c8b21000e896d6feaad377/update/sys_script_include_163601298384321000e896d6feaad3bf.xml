@@ -18,7 +18,7 @@ CiscoSecureAccessSyncPrivateResources.prototype = {
 		gs.info("[CSA Sync Private Apps] Starting syncApps...");
 
 		try {
-			// === Step 1: Get Access Token ===
+			// === Step 1: Get Access Token from Table ===
 			var token = new CiscoSecureAccessGetToken().getLatestAccessToken();
 			if (!token) {
 				gs.error("Failed to get token");
@@ -63,10 +63,11 @@ CiscoSecureAccessSyncPrivateResources.prototype = {
 						updated = true;
 					}
 
-					if ((!gr.u_application_id || gr.u_application_id.trim() === '') && app.resourceId) {
-						gr.u_application_id = app.resourceId;
+					if ((!gr.u_resource_id || gr.u_resource_id.trim() === '') && app.resourceId) {
+						gr.u_resource_id = app.resourceId;
 						updated = true;
 					}
+
 
 					if ((!gr.u_created || gr.u_created.trim() === '') && app.createdAt) {
 						gr.u_created = app.createdAt;
@@ -135,14 +136,14 @@ CiscoSecureAccessSyncPrivateResources.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-17 14:04:15</sys_created_on>
         <sys_id>163601298384321000e896d6feaad3bf</sys_id>
-        <sys_mod_count>6</sys_mod_count>
+        <sys_mod_count>8</sys_mod_count>
         <sys_name>CiscoSecureAccessSyncPrivateResources</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_include_163601298384321000e896d6feaad3bf</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-18 06:59:47</sys_updated_on>
+        <sys_updated_on>2025-09-19 12:54:39</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>163601298384321000e896d6feaad3bf</id>

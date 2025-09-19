@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="DELETE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>global.CiscoSecureAccessEventSetup</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>CiscoSecureAccessEventSetup</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var CiscoSecureAccessEventSetup = Class.create();
+CiscoSecureAccessEventSetup.prototype = {
+    initialize: function() {},
+
+    runSetup: function() {
+        // 1. Create or update custom fields on em_event
+        function createOrUpdateField(tableName, columnName, label, type, length) {
+            var dict = new GlideRecord('sys_dictionary');
+            dict.addQuery('name', tableName);
+            dict.addQuery('element', columnName);
+            dict.query();
+
+            if (dict.next()) {
+                var updated = false;
+                if (dict.max_length != length) {
+                    dict.max_length = length;
+                    updated = true;
+                }
+                if (updated) {
+                    dict.update();
+                    gs.addInfoMessage("]]>🔄<![CDATA[ Field " + columnName + " updated in " + tableName);
+                } else {
+                    gs.addInfoMessage("⚠️ Field " + columnName + " already exists in " + tableName);
+                }
+            } else {
+                var newDict = new GlideRecord('sys_dictionary');
+                newDict.initialize();
+                newDict.name = tableName;
+                newDict.element = columnName;
+                newDict.column_label = label;
+                newDict.internal_type = type;
+                newDict.max_length = length;
+                newDict.mandatory = false;
+                newDict.active = true;
+                newDict.insert();
+                gs.addInfoMessage("✅ Field " + columnName + " created in " + tableName);
+            }
+        }
+
+        // Example fields for em_event
+        createOrUpdateField("em_event", "u_api_key", "API Key", "string", 100);
+        createOrUpdateField("em_event", "u_rule_name", "Rule Name", "string", 2000);
+
+        // 2. Create or update Event Rule
+        function createOrUpdateEventRule(ruleName, condition) {
+            var rule = new GlideRecord('em_match_rule');
+            rule.addQuery('name', ruleName);
+            rule.query();
+
+            if (rule.next()) {
+                gs.addInfoMessage("⚠️ Event Rule already exists: " + ruleName);
+                return;
+            }
+
+            rule.initialize();
+            rule.name = ruleName;       
+            rule.sys_name = ruleName;   
+            rule.description = "Event Rule created via script";
+            rule.active = true;
+            rule.filter = condition;
+            rule.ignore_event = true;   
+            rule.insert();
+
+            gs.addInfoMessage("✅ Event Rule created: " + ruleName);
+        }
+
+        var condition = "severity=3^ORseverity=4^ORseverity=0^ORseverity=5";
+        createOrUpdateEventRule("Cisco Secure Access Event Management Rule", condition);
+
+        // 3. Create or update custom fields on em_alert
+        function createOrUpdateFieldAlert(tableName, columnName, label, type, length) {
+            var dict = new GlideRecord('sys_dictionary');
+            dict.addQuery('name', tableName);
+            dict.addQuery('element', columnName);
+            dict.query();
+
+            if (dict.next()) {
+                var updated = false;
+                if (dict.max_length != length) {
+                    dict.max_length = length;
+                    updated = true;
+                }
+                if (updated) {
+                    dict.update();
+                    gs.addInfoMessage("]]>🔄<![CDATA[ Field " + columnName + " updated in " + tableName);
+                } else {
+                    gs.addInfoMessage("⚠️ Field " + columnName + " already exists in " + tableName);
+                }
+            } else {
+                var newDict = new GlideRecord('sys_dictionary');
+                newDict.initialize();
+                newDict.name = tableName;
+                newDict.element = columnName;
+                newDict.column_label = label;
+                newDict.internal_type = type;
+                newDict.max_length = length;
+                newDict.mandatory = false;
+                newDict.active = true;
+                newDict.insert();
+                gs.addInfoMessage("✅ Field " + columnName + " created in " + tableName);
+            }
+        }
+
+        createOrUpdateFieldAlert("em_alert", "u_api_key", "API Key", "string", 100);
+        createOrUpdateFieldAlert("em_alert", "u_rule_name", "Rule Name", "string", 2000);
+
+        gs.addInfoMessage("]]>🎯<![CDATA[ Global setup script complete.");
+    },
+
+    type: 'CiscoSecureAccessEventSetup'
+};
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-19 09:49:17</sys_created_on>
+        <sys_id>95bf1e8e8348321000e896d6feaad3a4</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>CiscoSecureAccessEventSetup</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_95bf1e8e8348321000e896d6feaad3a4</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-19 09:49:17</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="DELETE">
+        <id>95bf1e8e8348321000e896d6feaad3a4</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-19 09:49:17</sys_created_on>
+        <sys_id>8240e2028388321000e896d6feaad31f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-19 09:49:17</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</application>
+        <file_path/>
+        <instance_id>864a7fa41bb6b190c84543f4bd4bcb1a</instance_id>
+        <instance_name>dev225624</instance_name>
+        <name>sys_script_include_95bf1e8e8348321000e896d6feaad3a4</name>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_script_include"&gt;&lt;sys_script_include action="INSERT_OR_UPDATE"&gt;&lt;access&gt;package_private&lt;/access&gt;&lt;active&gt;true&lt;/active&gt;&lt;api_name&gt;global.CiscoSecureAccessEventSetup&lt;/api_name&gt;&lt;caller_access/&gt;&lt;client_callable&gt;true&lt;/client_callable&gt;&lt;description/&gt;&lt;mobile_callable&gt;false&lt;/mobile_callable&gt;&lt;name&gt;CiscoSecureAccessEventSetup&lt;/name&gt;&lt;sandbox_callable&gt;false&lt;/sandbox_callable&gt;&lt;script&gt;&lt;![CDATA[var CiscoSecureAccessEventSetup = Class.create();
+CiscoSecureAccessEventSetup.prototype = {
+    initialize: function() {},
+
+    runSetup: function() {
+        // 1. Create or update custom fields on em_event
+        function createOrUpdateField(tableName, columnName, label, type, length) {
+            var dict = new GlideRecord('sys_dictionary');
+            dict.addQuery('name', tableName);
+            dict.addQuery('element', columnName);
+            dict.query();
+
+            if (dict.next()) {
+                var updated = false;
+                if (dict.max_length != length) {
+                    dict.max_length = length;
+                    updated = true;
+                }
+                if (updated) {
+                    dict.update();
+                    gs.addInfoMessage("]]&gt;🔄&lt;![CDATA[ Field " + columnName + " updated in " + tableName);
+                } else {
+                    gs.addInfoMessage("⚠️ Field " + columnName + " already exists in " + tableName);
+                }
+            } else {
+                var newDict = new GlideRecord('sys_dictionary');
+                newDict.initialize();
+                newDict.name = tableName;
+                newDict.element = columnName;
+                newDict.column_label = label;
+                newDict.internal_type = type;
+                newDict.max_length = length;
+                newDict.mandatory = false;
+                newDict.active = true;
+                newDict.insert();
+                gs.addInfoMessage("✅ Field " + columnName + " created in " + tableName);
+            }
+        }
+
+        // Example fields for em_event
+        createOrUpdateField("em_event", "u_api_key", "API Key", "string", 100);
+        createOrUpdateField("em_event", "u_rule_name", "Rule Name", "string", 2000);
+
+        // 2. Create or update Event Rule
+        function createOrUpdateEventRule(ruleName, condition) {
+            var rule = new GlideRecord('em_match_rule');
+            rule.addQuery('name', ruleName);
+            rule.query();
+
+            if (rule.next()) {
+                gs.addInfoMessage("⚠️ Event Rule already exists: " + ruleName);
+                return;
+            }
+
+            rule.initialize();
+            rule.name = ruleName;       
+            rule.sys_name = ruleName;   
+            rule.description = "Event Rule created via script";
+            rule.active = true;
+            rule.filter = condition;
+            rule.ignore_event = true;   
+            rule.insert();
+
+            gs.addInfoMessage("✅ Event Rule created: " + ruleName);
+        }
+
+        var condition = "severity=3^ORseverity=4^ORseverity=0^ORseverity=5";
+        createOrUpdateEventRule("Cisco Secure Access Event Management Rule", condition);
+
+        // 3. Create or update custom fields on em_alert
+        function createOrUpdateFieldAlert(tableName, columnName, label, type, length) {
+            var dict = new GlideRecord('sys_dictionary');
+            dict.addQuery('name', tableName);
+            dict.addQuery('element', columnName);
+            dict.query();
+
+            if (dict.next()) {
+                var updated = false;
+                if (dict.max_length != length) {
+                    dict.max_length = length;
+                    updated = true;
+                }
+                if (updated) {
+                    dict.update();
+                    gs.addInfoMessage("]]&gt;🔄&lt;![CDATA[ Field " + columnName + " updated in " + tableName);
+                } else {
+                    gs.addInfoMessage("⚠️ Field " + columnName + " already exists in " + tableName);
+                }
+            } else {
+                var newDict = new GlideRecord('sys_dictionary');
+                newDict.initialize();
+                newDict.name = tableName;
+                newDict.element = columnName;
+                newDict.column_label = label;
+                newDict.internal_type = type;
+                newDict.max_length = length;
+                newDict.mandatory = false;
+                newDict.active = true;
+                newDict.insert();
+                gs.addInfoMessage("✅ Field " + columnName + " created in " + tableName);
+            }
+        }
+
+        createOrUpdateFieldAlert("em_alert", "u_api_key", "API Key", "string", 100);
+        createOrUpdateFieldAlert("em_alert", "u_rule_name", "Rule Name", "string", 2000);
+
+        gs.addInfoMessage("]]&gt;🎯&lt;![CDATA[ Global setup script complete.");
+    },
+
+    type: 'CiscoSecureAccessEventSetup'
+};
+]]&gt;&lt;/script&gt;&lt;sys_class_name&gt;sys_script_include&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2025-09-19 09:49:17&lt;/sys_created_on&gt;&lt;sys_id&gt;95bf1e8e8348321000e896d6feaad3a4&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_name&gt;CiscoSecureAccessEventSetup&lt;/sys_name&gt;&lt;sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377"&gt;e83ca68483c8b21000e896d6feaad377&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve"&gt;e83ca68483c8b21000e896d6feaad377&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_script_include_95bf1e8e8348321000e896d6feaad3a4&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2025-09-19 09:49:17&lt;/sys_updated_on&gt;&lt;/sys_script_include&gt;&lt;sys_es_latest_script action="INSERT_OR_UPDATE"&gt;&lt;id&gt;95bf1e8e8348321000e896d6feaad3a4&lt;/id&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2025-09-19 09:49:17&lt;/sys_created_on&gt;&lt;sys_id&gt;8240e2028388321000e896d6feaad31f&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2025-09-19 09:49:17&lt;/sys_updated_on&gt;&lt;table&gt;sys_script_include&lt;/table&gt;&lt;use_es_latest&gt;true&lt;/use_es_latest&gt;&lt;/sys_es_latest_script&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>1237460127</payload_hash>
+        <record_name>CiscoSecureAccessEventSetup</record_name>
+        <reverted_from/>
+        <source>7b675eb783b7221000e896d6feaad3c1</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-19 09:49:18</sys_created_on>
+        <sys_id>e24026028388321000e896d6feaad373</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>1996160d0da0000001</sys_recorded_at>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-19 09:49:18</sys_updated_on>
+        <type>Script Include</type>
+        <update_guid>6a4026024e883210cb38aefe436efe72</update_guid>
+        <update_guid_history>6a4026024e883210cb38aefe436efe72:1237460127</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-19 10:35:02</sys_created_on>
+        <sys_db_object display_value="" name="sys_script_include">sys_script_include</sys_db_object>
+        <sys_id>3da1442a8f0e4368b431b0ba807917c4</sys_id>
+        <sys_metadata>95bf1e8e8348321000e896d6feaad3a4</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>CiscoSecureAccessEventSetup</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_scope_delete display_value="">dc48029113d145e48da0dcb1695ce190</sys_scope_delete>
+        <sys_update_name>sys_script_include_95bf1e8e8348321000e896d6feaad3a4</sys_update_name>
+        <sys_update_version display_value="sys_script_include_95bf1e8e8348321000e896d6feaad3a4">e24026028388321000e896d6feaad373</sys_update_version>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-19 10:35:02</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

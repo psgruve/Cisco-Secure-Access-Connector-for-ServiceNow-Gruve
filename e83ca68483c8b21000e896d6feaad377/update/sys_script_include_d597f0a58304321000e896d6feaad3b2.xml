@@ -78,7 +78,7 @@ CiscoSecureAccessIntegrationAjax.prototype = Object.extendsObject(AbstractAjaxPr
 
             // extract href from integration response
             var href = parsed && parsed.href ? parsed.href : null;
-            if (!href) {
+			if (!href) {
                 return JSON.stringify({
                     success: false,
                     message: 'No href returned from integration API.',
@@ -89,7 +89,7 @@ CiscoSecureAccessIntegrationAjax.prototype = Object.extendsObject(AbstractAjaxPr
             // 3) Call credentials endpoint
             // Ensure href doesn't duplicate base path. If href is absolute, use it, otherwise prefix with base.
             var credentialsEndpoint = href.indexOf('http') === 0 ? href + '/credentials' : 'https://api.sse.cisco.com/admin/v2' + href + '/credentials';
-
+			
             var credentialsPayload = {
                 name: "Add credentials to webhook",
                 tags: ["string"],
@@ -143,14 +143,14 @@ CiscoSecureAccessIntegrationAjax.prototype = Object.extendsObject(AbstractAjaxPr
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-17 12:56:25</sys_created_on>
         <sys_id>d597f0a58304321000e896d6feaad3b2</sys_id>
-        <sys_mod_count>1</sys_mod_count>
+        <sys_mod_count>3</sys_mod_count>
         <sys_name>CiscoSecureAccessIntegrationAjax</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_include_d597f0a58304321000e896d6feaad3b2</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-18 06:22:57</sys_updated_on>
+        <sys_updated_on>2025-09-19 12:40:04</sys_updated_on>
     </sys_script_include>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>d597f0a58304321000e896d6feaad3b2</id>

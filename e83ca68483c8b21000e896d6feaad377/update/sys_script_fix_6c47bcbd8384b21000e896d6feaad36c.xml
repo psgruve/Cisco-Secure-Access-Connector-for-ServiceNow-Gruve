@@ -6,10 +6,32 @@
         <record_for_rollback>true</record_for_rollback>
         <script><![CDATA[(function executeFixScript() {
     var tableName = "change_request";
-    var modelName = "Cisco Secure Access Configuration";
-    var modelSysId = "";
+    var categoryField = "category";
+    var categoryLabel = "Cisco Secure Access";
+    var categoryValue = "cisco_secure_access"; 
+    var policyDesc = "Show Destination fields when Category is Cisco Secure Access";
+    var clientScriptName = "Validate Destination Address Field";
 
-	var fieldText = new GlideRecord("sys_dictionary");
+    // --- 1) Ensure Category choice exists ---
+    var choiceGR = new GlideRecord("sys_choice");
+    choiceGR.addQuery("name", tableName);
+    choiceGR.addQuery("element", categoryField);
+    choiceGR.addQuery("value", categoryValue);
+    choiceGR.query();
+    if (!choiceGR.next()) {
+        choiceGR.initialize();
+        choiceGR.name = tableName;
+        choiceGR.element = categoryField;
+        choiceGR.value = categoryValue;
+        choiceGR.label = categoryLabel;
+        choiceGR.sequence = 400;
+        choiceGR.language = "en";
+        choiceGR.insert();
+        gs.log("✅ Created new Category choice: " + categoryLabel);
+    }
+
+    // --- 2) Create Text Field: u_destination_address ---
+    var fieldText = new GlideRecord("sys_dictionary");
     fieldText.addQuery("name", tableName);
     fieldText.addQuery("element", "u_destination_address");
     fieldText.query();
@@ -23,10 +45,10 @@
         newField.max_length = 255;
         newField.mandatory = false;
         newField.insert();
-        gs.log("Fix Script: Created text field u_destination_address");
+        gs.log("✅ Created text field u_destination_address");
     }
 
-    // --- Create Reference Field: u_destination_list ---
+    // --- 3) Create Reference Field: u_destination_list ---
     var fieldRef = new GlideRecord("sys_dictionary");
     fieldRef.addQuery("name", tableName);
     fieldRef.addQuery("element", "u_destination_list");
@@ -37,76 +59,121 @@
         newRef.name = tableName;
         newRef.element = "u_destination_list";
         newRef.internal_type = "reference";
-        newRef.reference = "u_cisco_secure_access_destination_list"; // reference table
+        newRef.reference = "u_cisco_secure_access_destination_list"; 
         newRef.column_label = "Destination List";
         newRef.mandatory = false;
         newRef.insert();
-        gs.log("Fix Script: Created reference field u_destination_list");
+        gs.log("✅ Created reference field u_destination_list");
     }
 
-    // -- 1) Lookup the change model sys_id by name
-    var modelGR = new GlideRecord("chg_model");
-    modelGR.addQuery("name", modelName);
-    modelGR.query();
-    if (modelGR.next()) {
-        modelSysId = modelGR.getUniqueValue();
-        gs.log("✅ Found Change Model: " + modelName + " (sys_id = " + modelSysId + ")");
-    } else {
-        gs.log("⚠️ Model not found: " + modelName);
-        return; // stop if model not found
-    }
-
-    // -- 2) Check if the UI Policy already exists
+    // --- 4) Create UI Policy ---
     var uiPolicyGR = new GlideRecord("sys_ui_policy");
     uiPolicyGR.addQuery("table", tableName);
-    uiPolicyGR.addQuery("short_description",
-        "Show Destination fields for Cisco Secure Access Configuration");
+    uiPolicyGR.addQuery("short_description", policyDesc);
     uiPolicyGR.query();
-    if (uiPolicyGR.next()) {
-        gs.log("ℹ️ UI Policy already exists, sys_id = " + uiPolicyGR.getUniqueValue());
-        return;
+    var policySysId;
+    if (!uiPolicyGR.next()) {
+        uiPolicyGR.initialize();
+        uiPolicyGR.table = tableName;
+        uiPolicyGR.short_description = policyDesc;
+        uiPolicyGR.order = 100;
+        uiPolicyGR.active = true;
+        uiPolicyGR.on_load = true;
+        uiPolicyGR.on_change = true;
+        uiPolicyGR.setValue('conditions', categoryField + "=" + categoryValue + "^EQ");
+        policySysId = uiPolicyGR.insert();
+        gs.log("✅ Created UI Policy (sys_id = " + policySysId + ")");
+    } else {
+        policySysId = uiPolicyGR.getUniqueValue();
+        gs.log("ℹ️ UI Policy already exists: " + policySysId);
     }
 
-    // -- 3) Create the new UI Policy record
-    uiPolicyGR.initialize();
-    uiPolicyGR.table = tableName;
-    uiPolicyGR.short_description = "Show Destination fields for Cisco Secure Access Configuration";
-    uiPolicyGR.order = 100;
-    uiPolicyGR.active = true;
-    uiPolicyGR.on_load = true;    // run on form load
-    uiPolicyGR.on_change = true;  // re-evaluate on field changes
-    // Set condition: chg_model = [modelSysId]
-    // Use encoded query so it shows in the Condition builder (instead of JSON)
-    uiPolicyGR.setValue('conditions', 'chg_model=' + modelSysId + '^EQ');
-    var policySysId = uiPolicyGR.insert();
-    gs.log("✅ Created UI Policy (sys_id = " + policySysId + ")");
-
-    // -- 4) Create UI Policy Actions for the fields
+    // --- 5) Create UI Policy Actions ---
     var fieldsToShow = ["u_destination_list", "u_destination_address"];
     fieldsToShow.forEach(function(fieldName) {
         var actionGR = new GlideRecord("sys_ui_policy_action");
-        actionGR.initialize();
-        actionGR.ui_policy = policySysId;
-        actionGR.field = fieldName;
-        actionGR.mandatory = true;
-        actionGR.visible = true;
-        actionGR.insert();
-        gs.log("✅ Added UI Policy Action for field: " + fieldName);
+        actionGR.addQuery("ui_policy", policySysId);
+        actionGR.addQuery("field", fieldName);
+        actionGR.query();
+        if (!actionGR.next()) {
+            actionGR.initialize();
+            actionGR.ui_policy = policySysId;
+            actionGR.field = fieldName;
+            actionGR.mandatory = true;
+            actionGR.visible = true;
+            actionGR.insert();
+            gs.log("✅ Added UI Policy Action for field: " + fieldName);
+        }
     });
+
+    // --- 6) Create Client Script for validation ---
+    var clientGR = new GlideRecord("sys_script_client");
+    clientGR.addQuery("table", tableName);
+    clientGR.addQuery("name", clientScriptName);
+    clientGR.query();
+    if (!clientGR.next()) {
+        clientGR.initialize();
+        clientGR.name = clientScriptName;
+        clientGR.table = tableName;
+        clientGR.type = "onChange";
+        clientGR.field = "u_destination_address";
+        clientGR.ui_type = 0; // 0 = Desktop
+        clientGR.active = true;
+        clientGR.description = "Validates that Destination Address contains only IPv4, IPv6, URL, or DNS values (multiple allowed).";
+
+        clientGR.script = 
+`function onChange(control, oldValue, newValue, isLoading) {
+    if (isLoading || newValue == '') {
+        return;
+    }
+
+    // Allow multiple values separated by comma
+    var values = newValue.split(/\\s*,\\s*/);
+
+    // Regex patterns
+    var ipv4Pattern = /^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$/;
+    var ipv6Pattern = /^(([0-9a-fA-F]{1,4}):){7}([0-9a-fA-F]{1,4})$/;
+    var urlPattern  = /^(https?:\\/\\/)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(:\\d+)?(\\/.*)?$/;
+    var dnsPattern  = /^([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$/;
+
+    var invalidValues = [];
+
+    values.forEach(function(val) {
+        if (!(ipv4Pattern.test(val) || ipv6Pattern.test(val) || urlPattern.test(val) || dnsPattern.test(val))) {
+            invalidValues.push(val);
+        }
+    });
+
+    if (invalidValues.length > 0) {
+        g_form.showFieldMsg('u_destination_address',
+            'Invalid value(s): ' + invalidValues.join(', ') +
+            '. Only IPv4, IPv6, URL, or DNS names are allowed.',
+            'error');
+    } else {
+        g_form.hideFieldMsg('u_destination_address');
+    }
+}`;
+
+        var newClientId = clientGR.insert();
+        gs.log("✅ Created Client Script: " + clientScriptName + " (sys_id=" + newClientId + ")");
+    } else {
+        gs.log("ℹ️ Client Script already exists: " + clientGR.getUniqueValue());
+    }
+
 })();
 ]]></script>
         <sys_class_name>sys_script_fix</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-18 07:37:43</sys_created_on>
         <sys_id>6c47bcbd8384b21000e896d6feaad36c</sys_id>
-        <sys_mod_count>11</sys_mod_count>
+        <sys_mod_count>13</sys_mod_count>
         <sys_name>Add fields in change request</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_script_fix_6c47bcbd8384b21000e896d6feaad36c</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-18 11:41:19</sys_updated_on>
+        <sys_updated_on>2025-09-19 10:04:40</sys_updated_on>
         <unloadable>false</unloadable>
     </sys_script_fix>
     <sys_es_latest_script action="INSERT_OR_UPDATE">

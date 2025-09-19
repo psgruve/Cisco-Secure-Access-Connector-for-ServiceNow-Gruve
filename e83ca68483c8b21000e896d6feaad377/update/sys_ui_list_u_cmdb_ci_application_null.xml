@@ -3,152 +3,227 @@
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
             <element>name</element>
-            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">447839d983c0b21000e896d6feaad3d4</list_id>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
             <position>0</position>
             <sum>false</sum>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2025-09-16 22:59:45</sys_created_on>
-            <sys_id>047839d983c0b21000e896d6feaad3d5</sys_id>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>e67775468304321000e896d6feaad321</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2025-09-16 22:59:45</sys_updated_on>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
             <element>manufacturer</element>
-            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">447839d983c0b21000e896d6feaad3d4</list_id>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
             <position>1</position>
             <sum>false</sum>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2025-09-16 22:59:45</sys_created_on>
-            <sys_id>0c7839d983c0b21000e896d6feaad3d5</sys_id>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>ea7775468304321000e896d6feaad321</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2025-09-16 22:59:45</sys_updated_on>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
             <element>location</element>
-            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">447839d983c0b21000e896d6feaad3d4</list_id>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
             <position>2</position>
             <sum>false</sum>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2025-09-16 22:59:45</sys_created_on>
-            <sys_id>007839d983c0b21000e896d6feaad3d6</sys_id>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>ee7775468304321000e896d6feaad321</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2025-09-16 22:59:45</sys_updated_on>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
             <element>short_description</element>
-            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">447839d983c0b21000e896d6feaad3d4</list_id>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
             <position>3</position>
             <sum>false</sum>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2025-09-16 22:59:45</sys_created_on>
-            <sys_id>047839d983c0b21000e896d6feaad3d6</sys_id>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>e27775468304321000e896d6feaad322</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2025-09-16 22:59:45</sys_updated_on>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
-            <element>sys_class_name</element>
-            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">447839d983c0b21000e896d6feaad3d4</list_id>
+            <element>u_resource_addresses</element>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
             <position>4</position>
             <sum>false</sum>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2025-09-16 22:59:45</sys_created_on>
-            <sys_id>087839d983c0b21000e896d6feaad3d6</sys_id>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>e67775468304321000e896d6feaad322</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2025-09-16 22:59:45</sys_updated_on>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
-            <element>sys_updated_on</element>
-            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">447839d983c0b21000e896d6feaad3d4</list_id>
+            <element>u_resource_group</element>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
             <position>5</position>
             <sum>false</sum>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2025-09-16 22:59:45</sys_created_on>
-            <sys_id>0c7839d983c0b21000e896d6feaad3d6</sys_id>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>ea7775468304321000e896d6feaad322</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2025-09-16 22:59:45</sys_updated_on>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
-            <element>maintenance_schedule</element>
-            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">447839d983c0b21000e896d6feaad3d4</list_id>
+            <element>u_resource_group_ids</element>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
             <position>6</position>
             <sum>false</sum>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2025-09-16 22:59:45</sys_created_on>
-            <sys_id>007839d983c0b21000e896d6feaad3d7</sys_id>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>ee7775468304321000e896d6feaad322</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2025-09-16 22:59:45</sys_updated_on>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
-            <element>u_approval_status</element>
-            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">447839d983c0b21000e896d6feaad3d4</list_id>
+            <element>u_resource_id</element>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
             <position>7</position>
             <sum>false</sum>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2025-09-16 22:59:45</sys_created_on>
-            <sys_id>047839d983c0b21000e896d6feaad3d7</sys_id>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>e27775468304321000e896d6feaad323</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2025-09-16 22:59:45</sys_updated_on>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
-            <element>u_application_id</element>
-            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">447839d983c0b21000e896d6feaad3d4</list_id>
+            <element>u_public_or_private</element>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
             <position>8</position>
             <sum>false</sum>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2025-09-16 22:59:45</sys_created_on>
-            <sys_id>087839d983c0b21000e896d6feaad3d7</sys_id>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>e67775468304321000e896d6feaad323</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2025-09-16 22:59:45</sys_updated_on>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list_element action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
-            <element>u_access_types</element>
-            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">447839d983c0b21000e896d6feaad3d4</list_id>
+            <element>sys_class_name</element>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
             <max_value>false</max_value>
             <min_value>false</min_value>
             <position>9</position>
             <sum>false</sum>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2025-09-16 22:59:45</sys_created_on>
-            <sys_id>0c7839d983c0b21000e896d6feaad3d7</sys_id>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>ea7775468304321000e896d6feaad323</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2025-09-16 22:59:45</sys_updated_on>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>sys_updated_on</element>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>10</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>ee7775468304321000e896d6feaad323</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>maintenance_schedule</element>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>11</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>e27775468304321000e896d6feaad324</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>u_approval_status</element>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>12</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>e67775468304321000e896d6feaad324</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>u_application_id</element>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>13</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>ea7775468304321000e896d6feaad324</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>u_access_types</element>
+            <list_id display_value="u_cmdb_ci_application" element="NULL" name="u_cmdb_ci_application" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">6e7775468304321000e896d6feaad320</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>14</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
+            <sys_id>ee7775468304321000e896d6feaad324</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
         </sys_ui_list_element>
         <sys_ui_list action="INSERT_OR_UPDATE">
             <average_value>false</average_value>
@@ -162,10 +237,10 @@
             <sum>false</sum>
             <sys_class_name>sys_ui_list</sys_class_name>
             <sys_created_by>admin</sys_created_by>
-            <sys_created_on>2025-09-16 22:59:45</sys_created_on>
+            <sys_created_on>2025-09-19 06:51:00</sys_created_on>
             <sys_domain>global</sys_domain>
             <sys_domain_path>/</sys_domain_path>
-            <sys_id>447839d983c0b21000e896d6feaad3d4</sys_id>
+            <sys_id>6e7775468304321000e896d6feaad320</sys_id>
             <sys_mod_count>0</sys_mod_count>
             <sys_name>u_cmdb_ci_application</sys_name>
             <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
@@ -173,7 +248,7 @@
             <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
             <sys_update_name>sys_ui_list_u_cmdb_ci_application_null</sys_update_name>
             <sys_updated_by>admin</sys_updated_by>
-            <sys_updated_on>2025-09-16 22:59:45</sys_updated_on>
+            <sys_updated_on>2025-09-19 06:51:00</sys_updated_on>
             <sys_user/>
             <view display_value="Default view" name="NULL">Default view</view>
             <view_name/>

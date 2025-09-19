@@ -11,7 +11,8 @@
 	<head>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 		<style>
-			html,body {
+			html,
+			body {
 				background: #f4f5f7;
 				font-family: 'Segoe UI', Tahoma, sans-serif;
 			}
@@ -152,35 +153,36 @@
 				font-weight: bold;
 				text-align: center;
 			}
-			 .instructions {
-                background: #f9fafb;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                padding: 25px;
-                margin-bottom: 35px;
-            }
- 
-            .instructions h3 {
-                font-size: 20px;
-                margin-bottom: 15px;
-                color: #333;
-            }
- 
-            .instructions ol {
-                padding-left: 20px;
-                margin: 0;
-            }
- 
-            .instructions li {
-                margin-bottom: 12px;
-                line-height: 1.7;
-                font-size: 15px;
-                color: #444;
-            }
- 
-            .instructions strong {
-                color: #293e40;
-            }
+
+			.instructions {
+				background: #f9fafb;
+				border: 1px solid #e0e0e0;
+				border-radius: 8px;
+				padding: 25px;
+				margin-bottom: 35px;
+			}
+
+			.instructions h3 {
+				font-size: 20px;
+				margin-bottom: 15px;
+				color: #333;
+			}
+
+			.instructions ol {
+				padding-left: 20px;
+				margin: 0;
+			}
+
+			.instructions li {
+				margin-bottom: 12px;
+				line-height: 1.7;
+				font-size: 15px;
+				color: #444;
+			}
+
+			.instructions strong {
+				color: #293e40;
+			}
 
 			.error {
 				color: red;
@@ -204,6 +206,10 @@
 				<div class="step" id="stepper2">
 					<span class="circle">2</span>
 					<p>Service now alert Registration</p>
+				</div>
+				<div class="step" id="stepper3">
+					<span class="circle">3</span>
+					<p>Run Your Configuration</p>
 				</div>
 			</div>
 
@@ -230,17 +236,19 @@
 			<!-- Step 2 -->
 			<div id="step2" style="display:none;">
 				<h2>Webhook Credentials</h2>
-				 <div class="instructions">
-                <h3>Instructions</h3>
-                <ol>
-                    <li>Ask your administrator to create a dedicated ServiceNow user account for receiving Cisco Secure Access alerts.
-                    </li>
-                    <li>Note the ServiceNow Username and Password for the new account. Enter carefully; incorrect
-                        credentials cannot be verified.</li>
-                    <li>Fill in your credentials below and click Submit to register for Cisco Secure Access Event Alerts. A confirmation
-                        message will appear upon success.</li>
-                </ol>
-            </div>
+				<div class="instructions">
+					<h3>Instructions</h3>
+					<ol>
+						<li>Ask your administrator to create a dedicated ServiceNow user account for receiving Cisco
+							Secure Access alerts.
+						</li>
+						<li>Note the ServiceNow Username and Password for the new account. Enter carefully; incorrect
+							credentials cannot be verified.</li>
+						<li>Fill in your credentials below and click Submit to register for Cisco Secure Access Event
+							Alerts. A confirmation
+							message will appear upon success.</li>
+					</ol>
+				</div>
 				<form onsubmit="submitForm(); return false;">
 					<div class="form-group">
 						<label for="username">Username</label>
@@ -259,27 +267,39 @@
 				</form>
 				<div id="resultMsg"></div>
 			</div>
-
+			<!-- Step 3 -->
+			<div id="step3" style="display:none;">
+				<h2>Run Cisco Event Setup</h2>
+				<button onclick="runSetup()">Run Setup</button>
+				<div id="result"></div>
+			</div>
 		</div>
 		<script>
+			function runSetup() {
+					var ga = new GlideAjax('CiscoSecureAccessPostConfigurationSetup');
+					ga.addParam('sysparm_name','runSetup');
+					ga.getXMLAnswer(function(response) {
+						resultDiv.innerHTML = "<span class='success'>Post Configuration Set Up Done!</span>";
+					});
+      		}
 			function setStepStatus(stepNum, status) {
-    const stepEl = document.getElementById("stepper" + stepNum);
-    stepEl.classList.remove("active", "completed");
- 
-    // Set the step status
-    stepEl.classList.add(status); // 'active' or 'completed'
- 
-    // Update progress line width based on step number
-    const progressLine = document.getElementById("progressLine");
-    switch(stepNum) {
-        case 1:
-            progressLine.style.width = (status === "completed") ? "50%" : "20%";
-            break;
-        case 2:
-            progressLine.style.width = (status === "completed") ? "100%" : "50%";
-            break;
-    }
-}
+				const stepEl = document.getElementById("stepper" + stepNum);
+				stepEl.classList.remove("active", "completed");
+			
+				// Set the step status
+				stepEl.classList.add(status); // 'active' or 'completed'
+			
+				// Update progress line width based on step number
+				const progressLine = document.getElementById("progressLine");
+				switch(stepNum) {
+					case 1:
+						progressLine.style.width = (status === "completed") ? "50%" : "20%";
+						break;
+					case 2:
+						progressLine.style.width = (status === "completed") ? "100%" : "50%";
+						break;
+				}
+			}
  
  
 function submitCiscoSecureAccessConfig() {
@@ -370,6 +390,7 @@ function submitCiscoSecureAccessConfig() {
     ga2.addParam('sysparm_webhook', webhook);
 
     ga2.getXMLAnswer(function(response) {
+		
         // response is a JSON string from server
         try {
             var res = JSON.parse(response);
@@ -381,6 +402,12 @@ function submitCiscoSecureAccessConfig() {
         if (res.success) {
             resultDiv.innerHTML = "<span class='success'>✅ " + res.message + "</span>";
             resultDiv.innerHTML += "<div>Webhook: " + res.webhook + "</div>";
+
+			setStepStatus(2, "completed");
+            setStepStatus(3, "active");
+           
+            document.getElementById("step2").style.display = "none";
+            document.getElementById("step3").style.display = "block";
             // optionally show raw responses (trimmed)
             // resultDiv.innerHTML += "<pre>" + JSON.stringify(res.integrationResponse, null, 2) + "</pre>";
             // redirect if needed
@@ -404,14 +431,14 @@ function submitCiscoSecureAccessConfig() {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-13 06:17:02</sys_created_on>
         <sys_id>d0b5368c830cb21000e896d6feaad37a</sys_id>
-        <sys_mod_count>7</sys_mod_count>
+        <sys_mod_count>20</sys_mod_count>
         <sys_name>Cisco Secure Access Creditial And Profile Management</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sys_ui_page_d0b5368c830cb21000e896d6feaad37a</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-17 13:20:24</sys_updated_on>
+        <sys_updated_on>2025-09-19 12:46:44</sys_updated_on>
     </sys_ui_page>
     <sys_es_latest_script action="INSERT_OR_UPDATE">
         <id>d0b5368c830cb21000e896d6feaad37a</id>

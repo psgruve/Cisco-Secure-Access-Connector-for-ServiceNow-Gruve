@@ -6,7 +6,7 @@
         <availability>on_desktop</availability>
         <billable>false</billable>
         <can_cancel>false</can_cancel>
-        <category/>
+        <category display_value="Cisco Secure Access ">9d5b1785834c321000e896d6feaad3d4</category>
         <checked_out/>
         <cost>0</cost>
         <custom_cart/>
@@ -59,7 +59,7 @@
         <price>0</price>
         <published_ref/>
         <recurring_frequency/>
-        <redirect_url>generated_record</redirect_url>
+        <redirect_url>catalog_home</redirect_url>
         <request_method/>
         <roles/>
         <save_options/>
@@ -70,7 +70,7 @@
 * To access the variables, use `producer.var1` where var1 is the name of the variable
 * To access the Record Producer use `cat_item`
 */]]></save_script>
-        <sc_catalogs/>
+        <sc_catalogs>e0d08b13c3330100c8b837659bba8fb4</sc_catalogs>
         <sc_ic_item_staging/>
         <sc_ic_version/>
         <sc_template/>
@@ -96,6 +96,40 @@
         return (v === 'true' || v === 'on' || v === '1' || v === 'yes');
     }
 
+    // Validation helpers
+    function isIPv4(addr) {
+        return /^(\d{1,3}\.){3}\d{1,3}$/.test(addr);
+    }
+    function isIPv6(addr) {
+        return /^([a-fA-F0-9:]+:+)+[a-fA-F0-9]+$/.test(addr);
+    }
+    function isCIDR(addr) {
+        return /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/.test(addr) || /^([a-fA-F0-9:]+:+)+[a-fA-F0-9]+\/\d{1,3}$/.test(addr);
+    }
+    function isFQDN(addr) {
+        // FQDN: must have at least one dot, no spaces, no wildcards
+        return /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/.test(addr);
+    }
+    function isWildcardFQDN(addr) {
+        // Wildcard FQDN: starts with *.
+        return /^\*\.[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/.test(addr);
+    }
+    function isValidAddress(addr) {
+        return isIPv4(addr) || isIPv6(addr) || isCIDR(addr) || isFQDN(addr) || isWildcardFQDN(addr);
+    }
+    function isValidPortList(portStr) {
+        if (!portStr) return true;
+        var ports = portStr.split(',');
+        for (var i = 0; i < ports.length; i++) {
+            var port = ports[i].trim();
+            if (!/^\d+$/.test(port)) return false;
+            var n = parseInt(port, 10);
+            if (n < 1 || n > 65535) return false;
+        }
+        return true;
+    }
+
+    // Gather variables
     var payload = {
         privateResourceName: readText(producer, 'private_resource_name'),
         description: readText(producer, 'description'),
@@ -111,14 +145,75 @@
         remotelyReachableAccess: readText(producer, 'remotely_reachable_access')
     };
 
-    // Log what came from the form
+    // --- VALIDATIONS ---
+
+    // 1. Mandatory fields
+    var missing = [];
+    if (!payload.privateResourceName) missing.push("Private Resource Name");
+    if (!payload.internallyAddress) missing.push("Internally reachable address");
+    if (!payload.protocol) missing.push("Protocol");
+    if (!payload.resourceGroupType) missing.push("Resource Group Type");
+    if (missing.length > 0) {
+        gs.addErrorMessage("Missing mandatory fields: " + missing.join(", "));
+        producer.redirect = false;
+        return;
+    }
+
+    // 2. Private Resource Name: only letters, numbers, spaces, hyphens
+    if (!/^[A-Za-z0-9\- ]+$/.test(payload.privateResourceName)) {
+        gs.addErrorMessage("Resource Name must only contain letters, numbers, spaces, and hyphens.");
+        producer.redirect = false;
+        return;
+    }
+
+    // 3. Internally reachable address: must be FQDN, wildcard FQDN, IPv4, IPv6, or CIDR
+    if (!isValidAddress(payload.internallyAddress)) {
+        gs.addErrorMessage("Internally reachable address must be a valid FQDN, wildcard FQDN, IPv4, IPv6, or CIDR.");
+        producer.redirect = false;
+        return;
+    }
+
+    // 4. Protocol: must be allowed value
+    var allowedProtocols = ["Any", "TCP", "UDP", "HTTP/HTTPS", "SSH", "RDP-TCP"];
+    if (allowedProtocols.indexOf(payload.protocol) === -1) {
+        gs.addErrorMessage("Invalid protocol selected. Allowed: " + allowedProtocols.join(", "));
+        producer.redirect = false;
+        return;
+    }
+
+    // 5. Port / Ranges: must be numeric, 1-65535, comma-separated
+    if (payload.portRanges && !isValidPortList(payload.portRanges)) {
+        gs.addErrorMessage("Port(s) must be numbers between 1 and 65535.");
+        producer.redirect = false;
+        return;
+    }
+
+    // 6. Remotely Reachable Access: if Client Base Connection, must be valid address
+    if (payload.clientBaseConnection && payload.remotelyReachableAccess && !isValidAddress(payload.remotelyReachableAccess)) {
+        gs.addErrorMessage("Remotely Reachable Access must be a valid FQDN, wildcard FQDN, IPv4, IPv6, or CIDR.");
+        producer.redirect = false;
+        return;
+    }
+
+    // 7. Protocol-specific address validation
+    if (payload.protocol === "TCP" || payload.protocol === "HTTP/HTTPS") {
+        // Only IPv4 or IPv6 allowed for internally reachable address
+        if (!(isIPv4(payload.internallyAddress) || isIPv6(payload.internallyAddress))) {
+            gs.addErrorMessage("For TCP or HTTP/HTTPS protocol, Internally reachable address must be IPv4 or IPv6.");
+            producer.redirect = false;
+            return;
+        }
+    }
+
+    // --- END VALIDATIONS ---
+
     gs.info("[Producer] Payload JSON: " + JSON.stringify(payload));
 
-    // ]]>🔹<![CDATA[ Call Script Include
+    //  Call Script Include
     var si = new global.CiscoSecureAccessCreatePrivateResource();
     var result = si.createPrivateResource(payload);
 
-    // ]]>🔹<![CDATA[ Log result from Script Include
+    //  Log result from Script Include
     gs.info("[Producer] Script Include returned: " + JSON.stringify(result));
 
 })(producer);
@@ -131,14 +226,14 @@
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-16 11:37:30</sys_created_on>
         <sys_id>91eb5fc5834c321000e896d6feaad340</sys_id>
-        <sys_mod_count>10</sys_mod_count>
+        <sys_mod_count>37</sys_mod_count>
         <sys_name>Add New Private Resources</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>sc_cat_item_producer_91eb5fc5834c321000e896d6feaad340</sys_update_name>
         <sys_updated_by>system</sys_updated_by>
-        <sys_updated_on>2025-09-16 12:03:37</sys_updated_on>
+        <sys_updated_on>2025-09-19 10:34:55</sys_updated_on>
         <table_name>u_cisco_secure_access_private_resources</table_name>
         <taxonomy_topic/>
         <template/>
@@ -146,7 +241,7 @@
         <type>item</type>
         <use_sc_layout>true</use_sc_layout>
         <vendor/>
-        <version>10</version>
+        <version>37</version>
         <view/>
         <visible_bundle>true</visible_bundle>
         <visible_guide>true</visible_guide>

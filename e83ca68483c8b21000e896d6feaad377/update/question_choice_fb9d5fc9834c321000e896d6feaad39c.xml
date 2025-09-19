@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="question_choice">
     <question_choice action="INSERT_OR_UPDATE">
         <inactive>false</inactive>
-        <order>100</order>
+        <order>5</order>
         <published_ref/>
         <question display_value="Protocol">ba4d53c9834c321000e896d6feaad354</question>
         <sys_class_name>question_choice</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2025-09-16 11:43:38</sys_created_on>
         <sys_id>fb9d5fc9834c321000e896d6feaad39c</sys_id>
-        <sys_mod_count>0</sys_mod_count>
+        <sys_mod_count>3</sys_mod_count>
         <sys_name>Any TCP</sys_name>
         <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
         <sys_policy/>
         <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
         <sys_update_name>question_choice_fb9d5fc9834c321000e896d6feaad39c</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2025-09-16 11:43:38</sys_updated_on>
+        <sys_updated_on>2025-09-18 12:18:38</sys_updated_on>
         <text>Any TCP</text>
-        <value>ANY-TCP</value>
+        <value>TCP</value>
     </question_choice>
     <fx_price action="delete_multiple" query="id=fb9d5fc9834c321000e896d6feaad39c"/>
 </record_update>

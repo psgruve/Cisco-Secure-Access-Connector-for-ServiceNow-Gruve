@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>global.CiscoSecureAccessPreCheck</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>CiscoSecureAccessPreCheck</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var CiscoSecureAccessPreCheck = Class.create();
+CiscoSecureAccessPreCheck.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+
+    runCheck: function () {
+        var errors = [];
+
+        // --- Update Set Check ---
+        var updateSet = gs.getSession().getCurrentUpdateSet();
+        if (!updateSet || updateSet === 'Global') {
+            errors.push('⚠️ No update set selected or update set is set to "Global".');
+        }
+
+        // --- Table and Field Definitions ---
+        var tables = [
+            { name: 'em_event_test', label: 'Event', fields: [
+                { label: 'Rule Name', name: 'u_rule_name' },
+                { label: 'API Key', name: 'u_api_key' }
+            ] },
+            { name: 'em_alert', label: 'Alert', fields: [
+                { label: 'Rule Name', name: 'u_rule_name' },
+                { label: 'API Key', name: 'u_api_key' }
+            ] },
+            { name: 'cisco_secure_access_token', label: 'Cisco Secure Access Token', fields: [
+                { label: 'Access Token', name: 'u_access_token' },
+                { label: 'API Key', name: 'u_api_key' },
+                { label: 'Created On', name: 'u_created_on' },
+                { label: 'Expires In', name: 'u_expires_in' },
+                { label: 'Expiry Date/Time', name: 'u_expiry_date_time' },
+                { label: 'Status', name: 'u_status' },
+                { label: 'Token Type', name: 'u_token_type' }
+            ] },
+            { name: 'u_cisco_secure_access_private_resources', label: 'Cisco Secure Access Private Resources', fields: [] },
+            { name: 'u_cisco_secure_access_private_resources_group', label: 'Cisco Secure Access Private Resources Group', fields: [] },
+            { name: 'u_cisco_secure_access_discovered_application', label: 'Cisco Secure Access Discovered Application', fields: [] },
+            { name: 'u_cisco_secure_access_application_list', label: 'Cisco Secure Access Application List', fields: [] },
+            { name: 'u_cisco_secure_access_destinations', label: 'Cisco Secure Access Destinations', fields: [] },
+            { name: 'u_cisco_secure_access_destination_list', label: 'Cisco Secure Access Destination List', fields: [] },
+            { name: 'u_cmdb_ci_application', label: 'CMDB CI Application', fields: [] }
+        ];
+
+        // --- Table and Field Existence Check ---
+        for (var i = 0; i < tables.length; i++) {
+            var table = tables[i];
+
+            // Table existence
+            var tableGR = new GlideRecord('sys_db_object');
+            tableGR.addQuery('name', table.name);
+            tableGR.query();
+            if (tableGR.next()) {
+                errors.push('❌ Table already exists: ' + table.name + ' (Label: ' + table.label + ')');
+            }
+
+            // Field existence
+            for (var j = 0; j < table.fields.length; j++) {
+                var field = table.fields[j];
+                var fieldGR = new GlideRecord('sys_dictionary');
+                fieldGR.addQuery('name', table.name);
+                fieldGR.addQuery('element', field.name);
+                fieldGR.query();
+                if (fieldGR.next()) {
+                    errors.push('❌ Field "' + field.name + '" already exists on table "' + table.name + '"');
+                }
+            }
+
+            // Warn if system-like prefix
+            if (table.name.startsWith('em_')) {
+                errors.push('⚠️ Warning: Table "' + table.name + '" may conflict with system/Event Management tables.');
+            }
+        }
+
+        gs.info("CiscoSecureAccessPreCheck runCheck executed. Errors found: " + errors.length);
+        return JSON.stringify(errors);
+    },
+
+    type: 'CiscoSecureAccessPreCheck'
+});
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-19 11:40:13</sys_created_on>
+        <sys_id>cbe7fac6834c321000e896d6feaad377</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>CiscoSecureAccessPreCheck</sys_name>
+        <sys_package display_value="Cisco Secure Access Connector for ServiceNow Gruve" source="e83ca68483c8b21000e896d6feaad377">e83ca68483c8b21000e896d6feaad377</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cisco Secure Access Connector for ServiceNow Gruve">e83ca68483c8b21000e896d6feaad377</sys_scope>
+        <sys_update_name>sys_script_include_cbe7fac6834c321000e896d6feaad377</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-19 11:57:49</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>cbe7fac6834c321000e896d6feaad377</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2025-09-19 11:40:13</sys_created_on>
+        <sys_id>c3a976ca834c321000e896d6feaad3a7</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2025-09-19 11:40:13</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>
